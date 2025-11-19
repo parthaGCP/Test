@@ -1,0 +1,4718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >Anvil Pipe Selector Tool</title>
+    <style >
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .input-group h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-row label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-row input, .form-row select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-row input:focus, .form-row select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin: 20px 0;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .component-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid #e74c3c;
+        }
+
+        .component-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .spec-table th, .spec-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .spec-table th {
+            background: #f1f2f6;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .valid {
+            border-top-color: #27ae60;
+        }
+
+        .invalid {
+            border-top-color: #e74c3c;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f2f6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .support-selector {
+            background: #e8f4fd;
+            border-left-color: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+        #checkAngBtn {
+            background-color: #3b82e7;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        #checkAngBtn:hover {
+            background-color: #052658;
+        }
+
+        .support-image-box { border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: box-shadow 0.2s; background: #fff; padding: 12px; } 
+        .support-image-box:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.18); } 
+        .support-image-label { margin-top: 8px; font-weight: bold; font-size: 1.1em; } 
+        .strut-gallery-container {
+        display: flex;
+        gap: 32px;
+        width: 100%;
+        }
+        .strut-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+        .strut-section-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 12px;
+        }
+        .strut-images-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: center;
+        width: 100%;
+        }
+        .support-image-box {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: box-shadow 0.2s;
+        background: #fff;
+        padding: 12px;
+        width: 320px;
+        max-width: 95vw;
+        box-sizing: border-box;
+        }
+        .support-image-box:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        }
+        .support-image-label {
+        margin-top: 8px;
+        font-weight: bold;
+        font-size: 1.1em;
+        }
+        .support-image-box img {
+        width: 100%;
+        height: auto;
+        display: block;
+        }
+
+    </style>
+</head>
+<body >
+    <div class="container">
+        <div class="header">
+            <img src="https://drive.google.com/thumbnail?id=1-Mz9nOLRFJcCIYd1vW6RSgIQOmBtQrSt" alt="Veolia Logo" style="height:30px; margin-right:15px;">
+            <h1 >ANVIL PIPE SELECTOR TOOL</h1>
+            <p >Professional Pipe Support Component Selection System</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group support-selector">
+                    <h3 >Support Type</h3>
+                    <div class="form-row">
+                        <label for="support-type">Select Support Type</label>
+                        <select id="support-type">
+                            <option value="rigid-rod">Rigid Rod Assembly</option>
+                            <option value="spring-hanger">Spring Hangers</option>
+                            <option value="strut-support">Strut Support</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h3 >Load Requirements</h3>
+                    <div class="form-row">
+                        <label for="load-n">Load (N)</label>
+                        <input type="number" id="load-n" placeholder="Enter load in Newtons">
+                    </div>
+                    <div class="form-row">
+                        <label for="load-lbs">Load (LBS)</label>
+                        <input type="number" id="load-lbs" placeholder="Enter load in pounds">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h3 >Specifications</h3>
+                    <div class="form-row">
+                        <label for="pipe-size-in">Pipe Size (in)</label>
+                        <select id="pipe-size-in"></select>
+                    </div>
+                    <div class="form-row">
+                        <label for="pipe-size-mm">Pipe Size (mm)</label>
+                        <input type="text" id="pipe-size-mm" placeholder="Automatically selected" readonly>
+                    </div>
+                    <div class="form-row">
+                        <label for="temperature-c">Temperature (°C)</label>
+                        <input type="number" id="temperature-c" value="343">
+                    </div>
+                    <div class="form-row">
+                        <label for="temperature-f">Temperature (°F)</label>
+                        <input type="number" id="temperature-f" value="650">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <h3 >Material and Insulation</h3>
+                    <div class="form-row">
+                        <label for="pipe-material">Pipe Material</label>
+                        <select id="pipe-material">
+                            <option value="Stainless Steel">Stainless Steel</option>
+                            <option value="Carbon Steel">Carbon Steel</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="clamp-material">Clamp Material</label>
+                        <select id="clamp-material">
+                            <option value="All">All</option>
+                            <option value="Stainless Steel">Stainless Steel</option>
+                            <option value="Carbon Steel">Carbon Steel</option>
+                        </select>
+                         <p id="material-warning" style="color: red; display: none; margin-top: 5px;">Warning: Pipe and Clamp materials should be the same.</p>
+                    </div>
+                    <div class="form-row">
+                        <label for="insulation-required">Insulation Required</label>
+                        <select id="insulation-required">
+                            <option value="Any">Any</option>
+                            <option value="YES">YES</option>
+                            <option value="NO">NO</option>
+                        </select>
+                    </div>
+                </div>
+                
+
+                <div class="input-group">
+                    <button id="checkAngBtn">Check Angularity</button>
+                    <img id="ang-img" src="https://drive.google.com/thumbnail?id=1dTeMUKYS8lPtPMCHxwPQ9Ll3rwb4_e8W" alt="Angularity Illustration" style="max-width: 100%; height: 500px; margin: 16px auto; display: none;" />
+                </div>
+
+                <div class="input-group" id="chk-ang-div" style="display: none;">
+                    <h3 >Additional Parameters</h3>
+                    <div class="form-row">
+                        <label for="length">Length (mm)</label>
+                        <input type="number" id="length" placeholder="Enter the Length">
+                    </div>
+                    <div class="form-row">
+                        <label for="displacement-x">Displacement X (mm)</label>
+                        <input type="number" id="displacement-x" placeholder="Enter displacement in X axis">
+                    </div>
+                    <div class="form-row">
+                        <label for="displacement-y">Displacement Y (mm)</label>
+                        <input type="number" id="displacement-y" placeholder="Enter displacement in Y axis">
+                    </div>
+                    <div class="form-row">
+                        <label for="displacement-z">Displacement Z (mm)</label>
+                        <input type="number" id="displacement-z" placeholder="Enter displacement in Z axis">
+                    </div>
+                    <div class="form-row">
+                        <label for="displacement">Displacement (mm)</label>
+                        <input type="number" id="displacement" placeholder="Calculated displacement" readonly>
+                    </div>
+                    <div class="form-row">
+                        <label for="angle">Angle Maintained (°)</label>
+                        <input type="number" id="angle" placeholder="Calculated maintained angle" readonly>
+                    </div>
+                    <div class="form-row">
+                        <label for="required-l">Required L to maintain 4° (mm)</label>
+                        <input type="number" id="required-l" placeholder="Calculated required length" readonly>
+                    </div>
+                </div>
+
+            </div>
+            <div class="input-group"> 
+                <h3>Support Picture Representation</h3> 
+                <div id="support-image-gallery" style="display:flex; flex-wrap:wrap; gap:10px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pipe Size Data
+            const pipeSizeMap = {
+                "1/2": 15, "3/4": 20, "1": 25, "1 1/4": 32, "1 1/2": 40, "2": 50,
+                "2 1/2": 65, "3": 80, "3 1/2": 90, "4": 100, "5": 125, "6": 150,
+                "8": 200, "10": 250, "12": 300, "14": 350, "16": 400, "18": 450,
+                "20": 500, "22": 550, "24": 600, "26": 650, "28": 700, "30": 750,
+                "32": 800, "34": 850, "36": 900, "38": 950, "40": 1000, "42": 1050,
+                "44": 1100, "46": 1150, "48": 1200
+            };
+
+            const pipeSizeInSelect = document.getElementById('pipe-size-in');
+            const pipeSizeMmInput = document.getElementById('pipe-size-mm');
+
+            for (const inch in pipeSizeMap) {
+                const option = document.createElement('option');
+                option.value = pipeSizeMap[inch];
+                option.textContent = inch;
+                pipeSizeInSelect.appendChild(option);
+            }
+
+            function updatePipeSizeMm() {
+                pipeSizeMmInput.value = pipeSizeInSelect.value;
+            }
+
+            pipeSizeInSelect.addEventListener('change', updatePipeSizeMm);
+            updatePipeSizeMm(); 
+
+            // Load Unit Conversion
+            document.getElementById('load-n').addEventListener('input', function() {
+                const newtons = parseFloat(this.value) || 0;
+                const pounds = newtons * 0.224809;
+                document.getElementById('load-lbs').value = pounds.toFixed(2);
+            });
+
+            document.getElementById('load-lbs').addEventListener('input', function() {
+                const pounds = parseFloat(this.value) || 0;
+                const newtons = pounds / 0.224809;
+                document.getElementById('load-n').value = newtons.toFixed(2);
+            });
+
+            // Temperature Conversion
+            const tempC = document.getElementById('temperature-c');
+            const tempF = document.getElementById('temperature-f');
+
+            tempC.addEventListener('input', function() {
+                const celsius = parseFloat(this.value);
+                if (!isNaN(celsius)) {
+                    tempF.value = ((celsius * 9/5) + 32).toFixed(0);
+                } else {
+                    tempF.value = '';
+                }
+            });
+
+            tempF.addEventListener('input', function() {
+                const fahrenheit = parseFloat(this.value);
+                if (!isNaN(fahrenheit)) {
+                    tempC.value = ((fahrenheit - 32) * 5/9).toFixed(0);
+                } else {
+                    tempC.value = '';
+                }
+            });
+            
+            // Toggle Angularity Check section
+            document.getElementById('checkAngBtn').addEventListener('click', function() { 
+                var div = document.getElementById('chk-ang-div');
+                const angImg = document.getElementById('ang-img'); 
+                if (div.style.display === 'none' || div.style.display === '') { div.style.display = 'block'; } 
+                else { div.style.display = 'none'; } 
+                if (angImg.style.display === 'none' || angImg.style.display === '') { angImg.style.display = 'block'; } 
+                else { angImg.style.display = 'none'; } 
+
+            });
+
+            // --- NEW: Material Selection and Filtering Logic ---
+            const pipeMaterialSelect = document.getElementById('pipe-material');
+            const clampMaterialSelect = document.getElementById('clamp-material');
+            const insulationRequiredSelect = document.getElementById('insulation-required');
+            const materialWarning = document.getElementById('material-warning');
+
+            function checkMaterialMismatch() {
+                const pipeMat = pipeMaterialSelect.value;
+                const clampMat = clampMaterialSelect.value;
+                
+                // Show warning only if specific, differing materials are chosen
+                if (clampMat !== 'All' && pipeMat !== clampMat) {
+                    materialWarning.style.display = 'block';
+                } else {
+                    materialWarning.style.display = 'none';
+                }
+            }
+            
+            function applyFilters() {
+                const clampMaterial = clampMaterialSelect.value;
+                const insulationRequired = insulationRequiredSelect.value;
+
+                const ss_Clamp_SH_Numbers = ['16', '20'];
+                const insulation_Yes_SH_Numbers = ['2', '8', '11', '12', '17', '18', '20', '21'];
+
+                const allImageContainers = document.querySelectorAll('#support-image-gallery > div');
+
+                allImageContainers.forEach(container => {
+                    const shValue = container.querySelector('img').getAttribute('data-value');
+
+                    // Check clamp material filter
+                    let clampVisible = true; // Default to true if "All" is selected
+                    if (clampMaterial === 'SS') {
+                        clampVisible = ss_Clamp_SH_Numbers.includes(shValue);
+                    } else if (clampMaterial === 'Non-SS') {
+                        clampVisible = !ss_Clamp_SH_Numbers.includes(shValue);
+                    }
+
+                    // Check insulation filter
+                    let insulationVisible = true; // Default to true if "Any" is selected
+                    if (insulationRequired === 'YES') {
+                        insulationVisible = insulation_Yes_SH_Numbers.includes(shValue);
+                    } else if (insulationRequired === 'NO') {
+                        insulationVisible = !insulation_Yes_SH_Numbers.includes(shValue);
+                    }
+
+                    // Show or hide based on BOTH conditions being met
+                    if (clampVisible && insulationVisible) {
+                        container.style.display = 'inline-block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Set initial value of clamp to match pipe and add event listeners
+            clampMaterialSelect.value = pipeMaterialSelect.value; 
+            pipeMaterialSelect.addEventListener('change', checkMaterialMismatch);
+            clampMaterialSelect.addEventListener('change', checkMaterialMismatch);
+            
+            // Add event listeners to trigger the filters
+            clampMaterialSelect.addEventListener('change', applyFilters);
+            insulationRequiredSelect.addEventListener('change', applyFilters);
+
+
+            // Angularity Calculations
+            const lengthInput = document.getElementById('length');
+            const displacementXInput = document.getElementById('displacement-x');
+            const displacementYInput = document.getElementById('displacement-y');
+            const displacementZInput = document.getElementById('displacement-z');
+            const displacementOutput = document.getElementById('displacement');
+            const angleOutput = document.getElementById('angle');
+            const requiredLOutput = document.getElementById('required-l');
+
+            function calculateAngularity() {
+                const l = parseFloat(lengthInput.value) || 0;
+                const dx = parseFloat(displacementXInput.value) || 0;
+                const dy = parseFloat(displacementYInput.value) || 0;
+                const dz = parseFloat(displacementZInput.value) || 0;
+
+                const totalDisplacement = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
+                displacementOutput.value = totalDisplacement.toFixed(2);
+
+                if (l > 0 && totalDisplacement > 0) {
+                    const angleInRadians = Math.asin(totalDisplacement / l);
+                    const angleInDegrees = angleInRadians * (180 / Math.PI);
+                    angleOutput.value = angleInDegrees.toFixed(2);
+                } else {
+                    angleOutput.value = '0.00';
+                }
+
+                if (totalDisplacement > 0) {
+                    const requiredL = totalDisplacement / Math.sin(4 * Math.PI / 180);
+                    requiredLOutput.value = requiredL.toFixed(2);
+                } else {
+                    requiredLOutput.value = '0.00';
+                }
+            }
+
+            lengthInput.addEventListener('input', calculateAngularity);
+            displacementXInput.addEventListener('input', calculateAngularity);
+            displacementYInput.addEventListener('input', calculateAngularity);
+            displacementZInput.addEventListener('input', calculateAngularity);
+
+            const imageMaps = {
+                'rigid-rod':{
+                    "1": "https://drive.google.com/thumbnail?id=1dfembjAegUI7l2D7SrfTXVDQgtrKr52x",
+                    "2": "https://drive.google.com/thumbnail?id=1Jg2RUsPZQ4b5wm9NJxnZqY-jI9nLXgWw",
+                    "3": "https://drive.google.com/thumbnail?id=11xGANTbjrnNAG1HlFZZX66Xdnfpk6137",
+                    "4": "https://drive.google.com/thumbnail?id=18ryhtSlEvHZVBUK6hyHRXs4Bb2ITDlGs",
+                    "5": "https://drive.google.com/thumbnail?id=1oZ0xkN-QYqZPk_MKjgEgWsIp59Y6mFc1",
+                    "6": "https://drive.google.com/thumbnail?id=1ArOY7-hjAHmBu2B8VivPFbxyQPEiOnLc",
+                    "7": "https://drive.google.com/thumbnail?id=1rY4LcJ9y-Yh1wSVBf7c1dtxXO87ee_9P",
+                    "8": "https://drive.google.com/thumbnail?id=12njVVgoilzub3Q_oUwtnc-YOrNE6eREQ",
+                    "9": "https://drive.google.com/thumbnail?id=1rPYCSXQKp-sQKhR_3DJ_TXi0NAsHTNdK",
+                    "10": "https://drive.google.com/thumbnail?id=1BwtSG4ZEh-rXFqTpRGHHL4Z7zqz78cpE",
+                    "11": "https://drive.google.com/thumbnail?id=1ElF1BLBqG_VItfcoV0JbooAyAiQkrU8g",
+                    "12": "https://drive.google.com/thumbnail?id=11yLr-IOJ2gylKRq-UKF_8d8IMmV0MoGc",
+                    "13": "https://drive.google.com/thumbnail?id=1N1QlIiKYilgJRkW-h_wl58jxvwM1TxuS",
+                    "14": "https://drive.google.com/thumbnail?id=1TKt-enx4L_cRKB8vSwPjjQ-BNB5G48a_",
+                    "15": "https://drive.google.com/thumbnail?id=1ykBOuqpcJ1Caa8aPT7Cr1A6WQgBSItiV",
+                    "16": "https://drive.google.com/thumbnail?id=1uYoYCCLx36BgXibFZ_h9kB3tRIIPDS27",
+                    "17": "https://drive.google.com/thumbnail?id=1dUo5Nfj7Rp9kliR6Pou0uB4F6JJDojkx",
+                    "18": "https://drive.google.com/thumbnail?id=10rutsLHCOiBn3XCen7GEwdPHy-28UnKK",
+                    "19": "https://drive.google.com/thumbnail?id=1AxQF-22ZyoVLcJTMK6T9oCWCbWaJwxpz",
+                    "20": "https://drive.google.com/thumbnail?id=1i5mg866_CVZ87WwBLKyYRdDxYPD1_tgX",
+                    "21": "https://drive.google.com/thumbnail?id=1hArMvuCtiegdLFatl17XwH78UneFDyz4",
+                    "22": "https://drive.google.com/thumbnail?id=16zzUxOLw6p6USOVpjWavZ0qiJhHOMQfP",
+                    "23": "https://drive.google.com/thumbnail?id=1HKwiYMNOnOD3vCheqRvGSUMgsX2r3fZ6",
+                    "24": "https://drive.google.com/thumbnail?id=1vHvvR1L5Sg5-5nrfuCqw2uLQOlF4jCA3",
+                },
+                 'spring-hanger': {
+                    "Development_in_progress": "Development in Progress"
+                },
+                'strut-support': {
+                    "C211_Opt1": "https://drive.google.com/thumbnail?id=1JXJNB-yMv1CcnvP_rr9lnS0xHqfFpEbp",
+                    "C211_Opt2": "https://drive.google.com/thumbnail?id=1J2QFn6Y6b02oxkmSa1RncaEzMf6uBRIJ",
+                    "C211_Opt3": "https://drive.google.com/thumbnail?id=1JCmPfP964ENUpojghVWQ2CRdvdDP2M3h",
+                    "C222_Opt1": "https://drive.google.com/thumbnail?id=1G06o8rh6KGKyjQNH7ZEJPtLkVSFV5c6D",
+                    "C222_Opt2": "https://drive.google.com/thumbnail?id=1i7mEGeOwtgbS3Q95QlO7lT3EmoSClOfC",
+                    "C222_Opt3": "https://drive.google.com/thumbnail?id=1HL6iIWEi5fctkxkTin5nulaAr0h7g_5n"
+                }
+
+            };
+
+
+            function renderGallery(type) {
+                const gallery = document.getElementById('support-image-gallery');
+                gallery.innerHTML = '';
+                const imageMap = imageMaps[type];
+                if (!imageMap) return;
+
+                if (type === 'rigid-rod') {
+                    Object.entries(imageMap).forEach(([key, url]) => {
+                        const container = document.createElement('div');
+                        container.className = 'support-image-box';
+                        container.style.display = 'inline-block';
+                        container.style.textAlign = 'center';
+                        container.style.margin = '10px';
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = `Support ${key}`;
+                        img.style.height = '500px';
+                        img.style.cursor = 'pointer';
+                        img.setAttribute('data-value', key);
+                        img.addEventListener('click', function() {
+                            const value = this.getAttribute('data-value');
+                            openInNewTab(value);
+                        });
+                        const label = document.createElement('div');
+                        label.className = 'support-image-label';
+                        label.textContent = `SH${key.padStart(2, '0')}`;
+                        label.style.marginTop = '8px';
+                        container.appendChild(img);
+                        container.appendChild(label);
+                        gallery.appendChild(container);
+                    });
+                } else if (type === 'strut-support') {
+                    const imageMap = imageMaps[type];
+                    const c211Keys = Object.keys(imageMap).filter(k => k.startsWith('C211'));
+                    const c222Keys = Object.keys(imageMap).filter(k => k.startsWith('C222'));
+
+                    const container = document.createElement('div');
+                    container.className = 'strut-gallery-container';
+
+                    // Left section (C211)
+                    const leftSection = document.createElement('div');
+                    leftSection.className = 'strut-section';
+                    const leftTitle = document.createElement('div');
+                    leftTitle.className = 'strut-section-title';
+                    leftTitle.textContent = 'C211';
+                    leftSection.appendChild(leftTitle);
+                    const leftImagesRow = document.createElement('div');
+                    leftImagesRow.className = 'strut-images-row';
+                    c211Keys.forEach(key => {
+                        const imgBox = document.createElement('div');
+                        imgBox.className = 'support-image-box';
+                        imgBox.style.textAlign = 'center';
+                        const img = document.createElement('img');
+                        img.src = imageMap[key];
+                        img.alt = key;
+                        img.style.height = '100px';
+                        img.style.width = '300px';
+                        img.style.cursor = 'pointer';
+                        img.setAttribute('data-value', key);
+                        img.addEventListener('click', function() {
+                        openInNewTab(key);
+                        });
+                        const label = document.createElement('div');
+                        label.className = 'support-image-label';
+                        label.textContent = key;
+                        imgBox.appendChild(img);
+                        imgBox.appendChild(label);
+                        leftImagesRow.appendChild(imgBox);
+                    });
+                    leftSection.appendChild(leftImagesRow);
+
+                    // Right section (C222)
+                    const rightSection = document.createElement('div');
+                    rightSection.className = 'strut-section';
+                    const rightTitle = document.createElement('div');
+                    rightTitle.className = 'strut-section-title';
+                    rightTitle.textContent = 'C222';
+                    rightSection.appendChild(rightTitle);
+                    const rightImagesRow = document.createElement('div');
+                    rightImagesRow.className = 'strut-images-row';
+                    c222Keys.forEach(key => {
+                        const imgBox = document.createElement('div');
+                        imgBox.className = 'support-image-box';
+                        imgBox.style.textAlign = 'center';
+                        const img = document.createElement('img');
+                        img.src = imageMap[key];
+                        img.alt = key;
+                        img.style.height = '100px';
+                        img.style.width = '300px';
+                        img.style.cursor = 'pointer';
+                        img.setAttribute('data-value', key);
+                        img.addEventListener('click', function() {
+                        openInNewTab(key);
+                        });
+                        const label = document.createElement('div');
+                        label.className = 'support-image-label';
+                        label.textContent = key;
+                        imgBox.appendChild(img);
+                        imgBox.appendChild(label);
+                        rightImagesRow.appendChild(imgBox);
+                    });
+                    rightSection.appendChild(rightImagesRow);
+
+                    container.appendChild(leftSection);
+                    container.appendChild(rightSection);
+                    gallery.appendChild(container);
+                    
+                } else if (type === 'spring-hanger') {
+                    Object.entries(imageMap).forEach(([key, url]) => {
+                        const textDiv = document.createElement('div');
+                        textDiv.textContent = url;
+                        textDiv.style.height = '300px';
+                        textDiv.style.display = 'flex';
+                        textDiv.style.alignItems = 'center';
+                        textDiv.style.justifyContent = 'center';
+                        textDiv.style.fontSize = '2em';
+                        gallery.appendChild(textDiv);
+                    });
+                }
+            }
+
+            // Listen for dropdown changes:
+            document.getElementById('support-type').addEventListener('change', function() {
+                const selectedType = this.value;
+                const galleryContainer = document.getElementById('support-image-gallery');
+                if (selectedType === 'rigid-rod' || selectedType === 'spring-hanger' || selectedType === 'strut-support') {
+                    galleryContainer.style.display = 'block';
+                    renderGallery(selectedType);
+                } else {
+                    galleryContainer.style.display = 'none';
+                }
+            });
+
+            // On page load, show gallery only if rigid-rod is selected:
+                const supportType = document.getElementById('support-type').value;
+                const galleryContainer = document.getElementById('support-image-gallery');
+                if (supportType === 'rigid-rod' || supportType === 'spring-hanger' || supportType === 'strut-support') {
+                    galleryContainer.style.display = 'block';
+                    renderGallery(supportType);
+                } else {
+                    galleryContainer.style.display = 'none';
+                }
+            
+        });
+        
+        // --- DATA FROM PDFS ---
+        const fig66Data = [
+    {
+        "rodSize": "3/8",
+        "pinOrBoltSize": "1/2 x 2 1/2",
+        "maxLoad650": 730,
+        "maxLoad750": 572,
+        "E": "1 7/8",
+        "E_prime": 2,
+        "B": 2,
+        "H": "9/16",
+        "R": "7/8",
+        "S": "1 1/4",
+        "T": "1/4"
+    },
+    {
+        "rodSize": "1/2",
+        "pinOrBoltSize": "5/8 x 2 1/2",
+        "maxLoad650": 1350,
+        "maxLoad750": 1057,
+        "E": "1 3/4",
+        "E_prime": "2",
+        "B": 2,
+        "H": "11/16",
+        "R": "7/8",
+        "S": "1 1/4",
+        "T": "1/4"
+    },
+    {
+        "rodSize": "5/8",
+        "pinOrBoltSize": "3/4 x 2 3/4",
+        "maxLoad650": 2160,
+        "maxLoad750": 1692,
+        "E": "1 3/4",
+        "E_prime": "2",
+        "B": 2,
+        "H": "13/16",
+        "R": "7/8",
+        "S": "1 1/4",
+        "T": "1/4"
+    },
+    {
+        "rodSize": "3/4",
+        "pinOrBoltSize": "7/8 x 4",
+        "maxLoad650": 3230,
+        "maxLoad750": 2530,
+        "E": "1 3/4",
+        "E_prime": "2",
+        "B": "2 1/2",
+        "H": "15/16",
+        "R": "1 1/8",
+        "S": "1 7/8",
+        "T": "3/8"
+    },
+    {
+        "rodSize": "7/8",
+        "pinOrBoltSize": "1 x 4",
+        "maxLoad650": 4480,
+        "maxLoad750": 3508,
+        "E": "2 5/8",
+        "E_prime": 3,
+        "B": "2 1/2",
+        "H": "1 1/8",
+        "R": "1 1/4",
+        "S": "2",
+        "T": "3/8"
+    },
+    {
+        "rodSize": "1",
+        "pinOrBoltSize": "1 1/8 x 5",
+        "maxLoad650": 5900,
+        "maxLoad750": 4620,
+        "E": "2 3/4",
+        "E_prime": "3",
+        "B": 3,
+        "H": "1 1/4",
+        "R": "1 1/2",
+        "S": "2 1/2",
+        "T": "1/2"
+    },
+    {
+        "rodSize": "1 1/4",
+        "pinOrBoltSize": "1 3/8 x 5 3/8",
+        "maxLoad650": 9500,
+        "maxLoad750": 7440,
+        "E": "2 7/8",
+        "E_prime": "3",
+        "B": 4,
+        "H": "1 1/2",
+        "R": "2",
+        "S": "2 1/2",
+        "T": "5/8"
+    },
+    {
+        "rodSize": "1 1/2",
+        "pinOrBoltSize": "1 5/8 x 6",
+        "maxLoad650": 13800,
+        "maxLoad750": 10807,
+        "E": null,
+        "E_prime": "4",
+        "B": 5,
+        "H": "1 3/4",
+        "R": "2 1/2",
+        "S": "3",
+        "T": "3/4"
+    },
+    {
+        "rodSize": "1 3/4",
+        "pinOrBoltSize": "6 7/8 x 6 1/8",
+        "maxLoad650": 18600,
+        "maxLoad750": 14566,
+        "E": null,
+        "E_prime": "5",
+        "B": 5,
+        "H": "2",
+        "R": "2 3/4",
+        "S": "3 3/4",
+        "T": "3/4"
+    },
+    {
+        "rodSize": "2",
+        "pinOrBoltSize": "2 1/4 x 6 7/8",
+        "maxLoad650": 24600,
+        "maxLoad750": 19265,
+        "E": null,
+        "E_prime": "5",
+        "B": 6,
+        "H": "2 3/8",
+        "R": "3 1/4",
+        "S": "3 1/2",
+        "T": "1/2"
+    },
+    {
+        "rodSize": "2 1/4",
+        "pinOrBoltSize": "2 1/2 x 7 3/8",
+        "maxLoad650": 32300,
+        "maxLoad750": 25295,
+        "E": null,
+        "E_prime": "5 3/4",
+        "B": 6,
+        "H": "2 5/8",
+        "R": "3 1/2",
+        "S": "3 1/2",
+        "T": "5/8"
+    },
+    {
+        "rodSize": "2 1/2",
+        "pinOrBoltSize": "2 3/4 x 7 5/8",
+        "maxLoad650": 39800,
+        "maxLoad750": 31169,
+        "E": null,
+        "E_prime": "5 3/4",
+        "B": 6,
+        "H": "2 7/8",
+        "R": "3 3/4",
+        "S": "3 3/4",
+        "T": "5/8"
+    },
+    {
+        "rodSize": "2 3/4",
+        "pinOrBoltSize": "3 x 7",
+        "maxLoad650": 49400,
+        "maxLoad750": 38687,
+        "E": null,
+        "E_prime": "5 3/4",
+        "B": 6,
+        "H": "3 1/8",
+        "R": "4",
+        "S": "3 3/4",
+        "T": "5/8"
+    },
+    {
+        "rodSize": "3",
+        "pinOrBoltSize": "3 1/4 x 7",
+        "maxLoad650": 60100,
+        "maxLoad750": 47066,
+        "E": null,
+        "E_prime": "6 1/4",
+        "B": 7,
+        "H": "3 3/8",
+        "R": "4",
+        "S": "3 3/4",
+        "T": "5/8"
+    },
+    {
+        "rodSize": "3 1/4",
+        "pinOrBoltSize": "3 1/2 x 7 3/4",
+        "maxLoad650": 71900,
+        "maxLoad750": 56307,
+        "E": null,
+        "E_prime": "7",
+        "B": 7,
+        "H": "3 5/8",
+        "R": "4 1/2",
+        "S": "4 1/4",
+        "T": "3/4"
+    },
+    {
+        "rodSize": "3 1/2",
+        "pinOrBoltSize": "3 3/4 x 7 3/4",
+        "maxLoad650": 84700,
+        "maxLoad750": 66331,
+        "E": null,
+        "E_prime": "7 1/2",
+        "B": 8,
+        "H": "3 7/8",
+        "R": "4 1/2",
+        "S": "4 1/4",
+        "T": "3/4"
+    }
+];
+        const fig290Data = 
+        [
+    {
+        "rodSize": "3/8",
+        "maxLoad650": 730,
+        "maxLoad750": 572,
+        "B": "1 5/32",
+        "C": "13/16",
+        "D": "13/32",
+        "E": "1 17/32",
+        "F": "31/32",
+        "G": "5/8",
+        "H": "1",
+        "eyeNutNumber": 0
+    },
+    {
+        "rodSize": "1/2",
+        "maxLoad650": 1350,
+        "maxLoad750": 1057,
+        "B": "1 5/32",
+        "C": "13/16",
+        "D": "13/32",
+        "E": "1 17/32",
+        "F": "31/32",
+        "G": "5/8",
+        "H": "1",
+        "eyeNutNumber": 0
+    },
+    {
+        "rodSize": "5/8",
+        "maxLoad650": 2160,
+        "maxLoad750": 1692,
+        "B": "1 1/2",
+        "C": "1 3/16",
+        "D": "1/2",
+        "E": "2",
+        "F": "1 3/8",
+        "G": "11/16",
+        "H": "1 1/4",
+        "eyeNutNumber": 1
+    },
+    {
+        "rodSize": "3/4",
+        "maxLoad650": 3230,
+        "maxLoad750": 2530,
+        "B": "1 1/2",
+        "C": "1 3/16",
+        "D": "1/2",
+        "E": "2",
+        "F": "1 3/8",
+        "G": "11/16",
+        "H": "1 1/4",
+        "eyeNutNumber": 1
+    },
+    {
+        "rodSize": "7/8",
+        "maxLoad650": 4480,
+        "maxLoad750": 3508,
+        "B": "2",
+        "C": "1 11/16",
+        "D": "3/4",
+        "E": "2 5/8",
+        "F": "1 15/16",
+        "G": "1",
+        "H": "1 3/4",
+        "eyeNutNumber": 2
+    },
+    {
+        "rodSize": "1",
+        "maxLoad650": 5900,
+        "maxLoad750": 4620,
+        "B": "2",
+        "C": "1 11/16",
+        "D": "3/4",
+        "E": "2 5/8",
+        "F": "1 15/16",
+        "G": "1",
+        "H": "1 3/4",
+        "eyeNutNumber": 2
+    },
+    {
+        "rodSize": "1 1/4",
+        "maxLoad650": 9500,
+        "maxLoad750": 7440,
+        "B": "2 1/2",
+        "C": "1 13/16",
+        "D": "1",
+        "E": "3 3/8",
+        "F": "2 3/8",
+        "G": "1 1/4",
+        "H": "2 1/4",
+        "eyeNutNumber": 3
+    },
+    {
+        "rodSize": "1 1/2",
+        "maxLoad650": 13800,
+        "maxLoad750": 10807,
+        "B": "2 1/2",
+        "C": "1 13/16",
+        "D": "1",
+        "E": "3 3/8",
+        "F": "2 3/8",
+        "G": "1 1/4",
+        "H": "2 1/4",
+        "eyeNutNumber": 3
+    },
+    {
+        "rodSize": "1 3/4",
+        "maxLoad650": 18600,
+        "maxLoad750": 14566,
+        "B": "4",
+        "C": "4",
+        "D": "1 1/2",
+        "E": "6 1/4",
+        "F": "4",
+        "G": "2 1/4",
+        "H": "3 3/4",
+        "eyeNutNumber": 4
+    },
+    {
+        "rodSize": "2",
+        "maxLoad650": 24600,
+        "maxLoad750": 19265,
+        "B": "4",
+        "C": "4",
+        "D": "1 1/2",
+        "E": "6 1/4",
+        "F": "4",
+        "G": "2 1/4",
+        "H": "3 3/4",
+        "eyeNutNumber": 4
+    },
+    {
+        "rodSize": "2 1/4",
+        "maxLoad650": 32300,
+        "maxLoad750": 25295,
+        "B": "4",
+        "C": "4",
+        "D": "1 1/2",
+        "E": "6 1/4",
+        "F": "4",
+        "G": "2 1/4",
+        "H": "3 3/4",
+        "eyeNutNumber": 4
+    },
+    {
+        "rodSize": "2 1/2",
+        "maxLoad650": 39800,
+        "maxLoad750": 31169,
+        "B": "4",
+        "C": "4",
+        "D": "1 1/2",
+        "E": "6 1/4",
+        "F": "4",
+        "G": "2 1/4",
+        "H": "3 3/4",
+        "eyeNutNumber": 4
+    }
+];
+        const fig146Data = [
+           { "rodSize": "1/4", "maxLoad650": 240 },
+    { "rodSize": "3/8", "maxLoad650": 730 },
+    { "rodSize": "1/2", "maxLoad650": 1350 },
+    { "rodSize": "5/8", "maxLoad650": 2160 },
+    { "rodSize": "3/4", "maxLoad650": 3230 },
+    { "rodSize": "7/8", "maxLoad650": 4480 },
+    { "rodSize": "1", "maxLoad650": 5900 },
+    { "rodSize": "1 1/4", "maxLoad650": 9500 },
+    { "rodSize": "1 1/2", "maxLoad650": 13800 }
+        ];
+        const fig212Data = {
+    "1/2": {
+        "maxLoad650": 500,
+        "maxLoad750": null,
+        "B": "1",
+        "C": "1/2",
+        "E": "1 3/16",
+        "H": "1 17/32",
+        "D": "1 23/32",
+        "F": "5/16",
+        "G": "1"
+    },
+    "3/4": {
+        "maxLoad650": 500,
+        "maxLoad750": null,
+        "B": "1 1/8",
+        "C": "1/2",
+        "E": "1 1/4",
+        "H": "1 21/32",
+        "D": "1 25/32",
+        "F": "5/16",
+        "G": "1"
+    },
+    "1": {
+        "maxLoad650": 500,
+        "maxLoad750": null,
+        "B": "1 1/8",
+        "C": "1/2",
+        "E": "1 3/8",
+        "H": "1 21/32",
+        "D": "1 29/32",
+        "F": "5/16",
+        "G": "1"
+    },
+    "1 1/4": {
+        "maxLoad650": 500,
+        "maxLoad750": null,
+        "B": "1 7/16",
+        "C": "1/2",
+        "E": "1 5/8",
+        "H": "1 31/32",
+        "D": "2 5/32",
+        "F": "5/16",
+        "G": "1"
+    },
+    "1 1/2": {
+        "maxLoad650": 800,
+        "maxLoad750": null,
+        "B": "1 9/16",
+        "C": "1/2",
+        "E": "1 11/16",
+        "H": "2 3/32",
+        "D": "2 7/32",
+        "F": "5/16",
+        "G": "1"
+    },
+    "2": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "2 1/8",
+        "C": "1/2",
+        "E": "2 1/8",
+        "H": "2 3/4",
+        "D": "2 3/4",
+        "F": "1/2",
+        "G": "1"
+    },
+    "2 1/2": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "2 5/8",
+        "C": "5/8",
+        "E": "2 5/8",
+        "H": "3 1/4",
+        "D": "3 1/4",
+        "F": "1/2",
+        "G": "1"
+    },
+    "3": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "2 7/8",
+        "C": "5/8",
+        "E": "2 7/8",
+        "H": "3 1/2",
+        "D": "3 1/2",
+        "F": "1/2",
+        "G": "1"
+    },
+    "3 1/2": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "3 3/16",
+        "C": "5/8",
+        "E": "3 3/16",
+        "H": "3 13/16",
+        "D": "3 13/16",
+        "F": "1/2",
+        "G": "1"
+    },
+    "4": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "3 1/2",
+        "C": "5/8",
+        "E": "3 1/2",
+        "H": "4 1/4",
+        "D": "4 1/4",
+        "F": "1/2",
+        "G": "1"
+    },
+    "5": {
+        "maxLoad650": 1040,
+        "maxLoad750": 930,
+        "B": "4 3/16",
+        "C": "3/4",
+        "E": "4 3/16",
+        "H": "4 15/16",
+        "D": "4 15/16",
+        "F": "5/8",
+        "G": "1 1/4"
+    },
+    "6": {
+        "maxLoad650": 1615,
+        "maxLoad750": 1440,
+        "B": "4 7/8",
+        "C": "1 1/4",
+        "E": "4 7/8",
+        "H": "5 3/4",
+        "D": "5 3/4",
+        "F": "3/4",
+        "G": "1 1/2"
+    },
+    "8": {
+        "maxLoad650": 1615,
+        "maxLoad750": 1440,
+        "B": "6",
+        "C": "1 1/4",
+        "E": "6",
+        "H": "6 7/8",
+        "D": "6 7/8",
+        "F": "3/4",
+        "G": "1 1/2"
+    },
+    "10": {
+        "maxLoad650": 2490,
+        "maxLoad750": 2220,
+        "B": "7 7/16",
+        "C": "1",
+        "E": "7 7/16",
+        "H": "8 9/16",
+        "D": "8 9/16",
+        "F": "7/8",
+        "G": "2"
+    },
+    "12": {
+        "maxLoad650": 2490,
+        "maxLoad750": 2220,
+        "B": "8 7/16",
+        "C": "1",
+        "E": "8 7/16",
+        "H": "9 9/16",
+        "D": "9 9/16",
+        "F": "7/8",
+        "G": "2"
+    },
+    "14": {
+        "maxLoad650": 2490,
+        "maxLoad750": 2220,
+        "B": "9 1/4",
+        "C": "1 1/8",
+        "E": "9 1/4",
+        "H": "10 5/8",
+        "D": "10 5/8",
+        "F": "7/8",
+        "G": "2 1/2"
+    },
+    "16": {
+        "maxLoad650": 2490,
+        "maxLoad750": 2220,
+        "B": "10 1/4",
+        "C": "1 1/8",
+        "E": "10 1/4",
+        "H": "11 5/8",
+        "D": "11 5/8",
+        "F": "7/8",
+        "G": "2 1/2"
+    },
+    "18": {
+        "maxLoad650": 3060,
+        "maxLoad750": 2730,
+        "B": "11 5/8",
+        "C": "1 1/4",
+        "E": "11 5/8",
+        "H": "13",
+        "D": "13",
+        "F": "1",
+        "G": "2 1/2"
+    },
+    "20": {
+        "maxLoad650": 3060,
+        "maxLoad750": 2730,
+        "B": "12 3/4",
+        "C": "1 3/8",
+        "E": "12 3/4",
+        "H": "14 1/8",
+        "D": "14 1/8",
+        "F": "1 1/8",
+        "G": "2 1/2"
+    },
+    "24": {
+        "maxLoad650": 3060,
+        "maxLoad750": 2730,
+        "B": "15 1/4",
+        "C": "1 5/8",
+        "E": "15 1/4",
+        "H": "16 7/8",
+        "D": "16 7/8",
+        "F": "1 1/4",
+        "G": "3"
+    },
+    "30": {
+        "maxLoad650": 3500,
+        "maxLoad750": 3360,
+        "B": "19",
+        "C": "2",
+        "E": "19",
+        "H": "21 1/8",
+        "D": "21 1/8",
+        "F": "1 3/4",
+        "G": "4"
+    }
+}
+            
+       ;
+        const fig216Data ={
+    "3": {
+        "maxLoad650": 3370,
+        "maxLoad750": 3005,
+        "B": "3 1/8",
+        "C": "1",
+        "D": "4",
+        "E": "3 1/8",
+        "F": "3/4",
+        "G": "2",
+        "H": "4"
+    },
+    "4": {
+        "maxLoad650": 3515,
+        "maxLoad750": 3135,
+        "B": "3 3/4",
+        "C": "1",
+        "D": "4 7/8",
+        "E": "3 3/4",
+        "F": "7/8",
+        "G": "2",
+        "H": "4 7/8"
+    },
+    "5": {
+        "maxLoad650": 3515,
+        "maxLoad750": 3135,
+        "B": "4 3/8",
+        "C": "1",
+        "D": "5 1/2",
+        "E": "4 3/8",
+        "F": "7/8",
+        "G": "2",
+        "H": "5 1/2"
+    },
+    "6": {
+        "maxLoad650": 4865,
+        "maxLoad750": 4350,
+        "B": "5 1/4",
+        "C": "1 1/8",
+        "D": "6 5/8",
+        "E": "5 1/4",
+        "F": "1",
+        "G": "2 1/2",
+        "H": "6 5/8"
+    },
+    "8": {
+        "maxLoad650": 4865,
+        "maxLoad750": 4340,
+        "B": "6 1/4",
+        "C": "1 1/8",
+        "D": "7 5/8",
+        "E": "6 1/4",
+        "F": "1",
+        "G": "2 1/2",
+        "H": "7 5/8"
+    },
+    "10": {
+        "maxLoad650": 6010,
+        "maxLoad750": 5360,
+        "B": "7 11/16",
+        "C": "1 1/4",
+        "D": "9 1/16",
+        "E": "7 11/16",
+        "F": "1 1/4",
+        "G": "2 1/2",
+        "H": "9 1/16"
+    },
+    "12": {
+        "maxLoad650": 8675,
+        "maxLoad750": 7740,
+        "B": "9 1/4",
+        "C": "1 5/8",
+        "D": "10 7/8",
+        "E": "9 1/4",
+        "F": "1 1/2",
+        "G": "3",
+        "H": "10 7/8"
+    },
+    "14": {
+        "maxLoad650": 9120,
+        "maxLoad750": 8135,
+        "B": "10",
+        "C": "1 5/8",
+        "D": "11 7/8",
+        "E": "10",
+        "F": "1 1/2",
+        "G": "3 1/2",
+        "H": "11 7/8"
+    },
+    "16": {
+        "maxLoad650": 9120,
+        "maxLoad750": 8135,
+        "B": "11",
+        "C": "1 5/8",
+        "D": "12 7/8",
+        "E": "11",
+        "F": "1 1/2",
+        "G": "3 1/2",
+        "H": "12 7/8"
+    },
+    "18": {
+        "maxLoad650": 13800,
+        "maxLoad750": null,
+        "B": "14 1/2",
+        "C": "3",
+        "D": "17 1/4",
+        "E": "14 1/2",
+        "F": "2",
+        "G": "6",
+        "H": "17 1/4"
+    },
+    "20": {
+        "maxLoad650": 15300,
+        "maxLoad750": null,
+        "B": "16",
+        "C": "3",
+        "D": "18 3/4",
+        "E": "16",
+        "F": "2",
+        "G": "5",
+        "H": "18 3/4"
+    },
+    "24": {
+        "maxLoad650": 16300,
+        "maxLoad750": null,
+        "B": "18 1/2",
+        "C": "3 1/4",
+        "D": "21 1/2",
+        "E": "18 1/2",
+        "F": "2 1/4",
+        "G": "6",
+        "H": "21 1/2"
+    },
+    "28": {
+        "maxLoad650": 18000,
+        "maxLoad750": null,
+        "B": "20 1/2",
+        "C": "3 1/4",
+        "D": "23 1/2",
+        "E": "20 1/2",
+        "F": "2 1/4",
+        "G": "8",
+        "H": "23 1/2"
+    },
+    "30": {
+        "maxLoad650": 20500,
+        "maxLoad750": null,
+        "B": "22 1/2",
+        "C": "3 1/2",
+        "D": "26",
+        "E": "22 1/2",
+        "F": "2 1/2",
+        "G": "7",
+        "H": "26"
+    },
+    "32": {
+        "maxLoad650": 23750,
+        "maxLoad750": null,
+        "B": "23 1/2",
+        "C": "3 1/2",
+        "D": "27",
+        "E": "23 1/2",
+        "F": "2 1/2",
+        "G": "8",
+        "H": "27"
+    },
+    "34": {
+        "maxLoad650": 25000,
+        "maxLoad750": null,
+        "B": "25",
+        "C": "3 1/2",
+        "D": "28 1/2",
+        "E": "25",
+        "F": "2 1/2",
+        "G": "8",
+        "H": "28 1/2"
+    },
+    "36": {
+        "maxLoad650": 28000,
+        "maxLoad750": null,
+        "B": "26 1/2",
+        "C": "3 1/2",
+        "D": "30 1/4",
+        "E": "26 1/2",
+        "F": "2 3/4",
+        "G": "8",
+        "H": "30 1/4"
+    },
+    "42": {
+        "maxLoad650": 35000,
+        "maxLoad750": null,
+        "B": "30",
+        "C": "3 1/2",
+        "D": "33 3/4",
+        "E": "30",
+        "F": "2 3/4",
+        "G": "10",
+        "H": "33 3/4"
+    }
+};
+        const fig299Data = [
+    {
+        "rodSize": "3/8",
+        "maxLoad650": 730,
+        "maxLoad750": 572,
+        "rodTakeOutB": "3 11/16",
+        "D": "1 7/16",
+        "N": "5/8",
+        "pinDiaP": "1/2",
+        "T": "5/16",
+        "W": "1 1/16",
+        "Grip": "1/2",
+        "clevisNo": 2
+    },
+    {
+        "rodSize": "1/2",
+        "maxLoad650": 1350,
+        "maxLoad750": 1057,
+        "rodTakeOutB": "3 11/16",
+        "D": "1 7/16",
+        "N": "5/8",
+        "pinDiaP": "5/8",
+        "T": "5/16",
+        "W": "1 1/16",
+        "Grip": "1/2",
+        "clevisNo": 2
+    },
+    {
+        "rodSize": "5/8",
+        "maxLoad650": 2160,
+        "maxLoad750": 1692,
+        "rodTakeOutB": "3 11/16",
+        "D": "1 7/16",
+        "N": "5/8",
+        "pinDiaP": "3/4",
+        "T": "5/16",
+        "W": "1 1/16",
+        "Grip": "5/8",
+        "clevisNo": 2
+    },
+    {
+        "rodSize": "3/4",
+        "maxLoad650": 3230,
+        "maxLoad750": 2530,
+        "rodTakeOutB": "4",
+        "D": "2 1/2",
+        "N": "1",
+        "pinDiaP": "7/8",
+        "T": "5/16",
+        "W": "1 5/16",
+        "Grip": "3/4",
+        "clevisNo": "2 1/2"
+    },
+    {
+        "rodSize": "7/8",
+        "maxLoad650": 4480,
+        "maxLoad750": 3508,
+        "rodTakeOutB": "4",
+        "D": "2 1/2",
+        "N": "1",
+        "pinDiaP": "1",
+        "T": "5/16",
+        "W": "1 5/16",
+        "Grip": "7/8",
+        "clevisNo": "2 1/2"
+    },
+    {
+        "rodSize": "1",
+        "maxLoad650": 5900,
+        "maxLoad750": 4620,
+        "rodTakeOutB": "5",
+        "D": "3",
+        "N": "1 5/16",
+        "pinDiaP": "1 1/8",
+        "T": "1/2",
+        "W": "1 1/2",
+        "Grip": "1",
+        "clevisNo": 3
+    },
+    {
+        "rodSize": "1 1/4",
+        "maxLoad650": 9500,
+        "maxLoad750": 7440,
+        "rodTakeOutB": "5",
+        "D": "3",
+        "N": "1 5/16",
+        "pinDiaP": "1 3/8",
+        "T": "1/2",
+        "W": "1 1/2",
+        "Grip": "1 1/4",
+        "clevisNo": 3
+    },
+    {
+        "rodSize": "1 1/2",
+        "maxLoad650": 13800,
+        "maxLoad750": 10807,
+        "rodTakeOutB": "6",
+        "D": "3 1/2",
+        "N": "1 5/8",
+        "pinDiaP": "1 5/8",
+        "T": "1/2",
+        "W": "1 3/4",
+        "Grip": "1 1/2",
+        "clevisNo": "3 1/2"
+    },
+    {
+        "rodSize": "1 3/4",
+        "maxLoad650": 18600,
+        "maxLoad750": 14566,
+        "rodTakeOutB": "6",
+        "D": "4",
+        "N": "1 3/4",
+        "pinDiaP": "1 7/8",
+        "T": "1/2",
+        "W": "2",
+        "Grip": "1 1/2",
+        "clevisNo": 4
+    },
+    {
+        "rodSize": "2",
+        "maxLoad650": 24600,
+        "maxLoad750": 19265,
+        "rodTakeOutB": "7",
+        "D": "5",
+        "N": "2 1/4",
+        "pinDiaP": "2 1/4",
+        "T": "5/8",
+        "W": "2 1/2",
+        "Grip": "2 1/2",
+        "clevisNo": 5
+    },
+    {
+        "rodSize": "2 1/4",
+        "maxLoad650": 32300,
+        "maxLoad750": 25295,
+        "rodTakeOutB": "8",
+        "D": "6",
+        "N": "2 3/4",
+        "pinDiaP": "2 1/2",
+        "T": "3/4",
+        "W": "3",
+        "Grip": "2 1/2",
+        "clevisNo": 6
+    },
+    {
+        "rodSize": "2 1/2",
+        "maxLoad650": 39800,
+        "maxLoad750": 31169,
+        "rodTakeOutB": "8",
+        "D": "6",
+        "N": "2 3/4",
+        "pinDiaP": "2 3/4",
+        "T": "3/4",
+        "W": "3",
+        "Grip": "2 1/2",
+        "clevisNo": 6
+    },
+    {
+        "rodSize": "2 3/4",
+        "maxLoad650": 49400,
+        "maxLoad750": 38687,
+        "rodTakeOutB": "9",
+        "D": "7",
+        "N": "3",
+        "pinDiaP": "3",
+        "T": "7/8",
+        "W": "3 1/2",
+        "Grip": "2 1/2",
+        "clevisNo": 7
+    },
+    {
+        "rodSize": "3",
+        "maxLoad650": 60100,
+        "maxLoad750": 47066,
+        "rodTakeOutB": "9",
+        "D": "7",
+        "N": "3",
+        "pinDiaP": "3 1/4",
+        "T": "7/8",
+        "W": "3 1/2",
+        "Grip": "2 1/2",
+        "clevisNo": 7
+    },
+    {
+        "rodSize": "3 1/4",
+        "maxLoad650": 71900,
+        "maxLoad750": 56307,
+        "rodTakeOutB": "10",
+        "D": "8",
+        "N": "4",
+        "pinDiaP": "3 1/2",
+        "T": "1 1/2",
+        "W": "4",
+        "Grip": "4",
+        "clevisNo": 8
+    },
+    {
+        "rodSize": "3 1/2",
+        "maxLoad650": 84700,
+        "maxLoad750": 66331,
+        "rodTakeOutB": "10",
+        "D": "8",
+        "N": "4",
+        "pinDiaP": "3 3/4",
+        "T": "1 1/2",
+        "W": "4",
+        "Grip": "4",
+        "clevisNo": 8
+    },
+    {
+        "rodSize": "3 3/4",
+        "maxLoad650": 98500,
+        "maxLoad750": 77139,
+        "rodTakeOutB": "10",
+        "D": "8",
+        "N": "4",
+        "pinDiaP": "4",
+        "T": "1 1/2",
+        "W": "4",
+        "Grip": "4",
+        "clevisNo": 8
+    },
+    {
+        "rodSize": "4",
+        "maxLoad650": 113400,
+        "maxLoad750": 88807,
+        "rodTakeOutB": "10",
+        "D": "8",
+        "N": "4",
+        "pinDiaP": "4 1/4",
+        "T": "1 1/2",
+        "W": "4",
+        "Grip": "4",
+        "clevisNo": 8
+    }
+
+        ];
+        const fig292Data = [
+    {
+        "clampNo": 1,
+        "maxRodSizeA": "3/4",
+        "maxLoad": 3230,
+        "Zmax": null,
+        "B": "11/16",
+        "jawAndEyeNutSize": "292 - 1 / 1"
+    },
+    {
+        "clampNo": 2,
+        "maxRodSizeA": "1",
+        "maxLoad": 5900,
+        "Zmax": 0.60,
+        "B": "1",
+        "jawAndEyeNutSize": "292 - 2 / 2"
+    },
+    {
+        "clampNo": 3,
+        "maxRodSizeA": "1",
+        "maxLoad": 5900,
+        "Zmax": 0.60,
+        "B": "1",
+        "jawAndEyeNutSize": "292 - 2 / 2"
+    },
+    {
+        "clampNo": 4,
+        "maxRodSizeA": "1",
+        "maxLoad": 5900,
+        "Zmax": 1.031,
+        "B": "1",
+        "jawAndEyeNutSize": "292 - 3 / 2"
+    },
+    {
+        "clampNo": 5,
+        "maxRodSizeA": "1",
+        "maxLoad": 5900,
+        "Zmax": 1.031,
+        "B": "1",
+        "jawAndEyeNutSize": "292 - 3 / 2"
+    },
+    {
+        "clampNo": 6,
+        "maxRodSizeA": "1 1/2",
+        "maxLoad": 11500,
+        "Zmax": 1.031,
+        "B": "1 1/4",
+        "jawAndEyeNutSize": "292 - 3 / 3"
+    },
+    {
+        "clampNo": 7,
+        "maxRodSizeA": "1 1/2",
+        "maxLoad": 11500,
+        "Zmax": 1.031,
+        "B": "1 1/4",
+        "jawAndEyeNutSize": "292 - 3 / 3"
+    },
+    {
+        "clampNo": 8,
+        "maxRodSizeA": "2",
+        "maxLoad": 11500,
+        "Zmax": 1.031,
+        "B": "2 1/4",
+        "jawAndEyeNutSize": "292 - 3 / 4"
+    }
+];
+        const fig295Data = {
+    "3/4": {
+        "maxLoad650": 950,
+        "maxLoad750": null,
+        "B": "15/16",
+        "C": "5/8",
+        "D": "2 7/8",
+        "rodTakeOutE": "2 7/16",
+        "F": "3/8",
+        "Gwidth": "1",
+        "H": "1 3/8"
+    },
+    "1": {
+        "maxLoad650": 950,
+        "maxLoad750": null,
+        "B": "1 1/8",
+        "C": "5/8",
+        "D": "3",
+        "rodTakeOutE": "2 9/16",
+        "F": "3/8",
+        "Gwidth": "1",
+        "H": "1 1/2"
+    },
+    "1 1/4": {
+        "maxLoad650": 950,
+        "maxLoad750": null,
+        "B": "1 1/4",
+        "C": "5/8",
+        "D": "3 1/8",
+        "rodTakeOutE": "2 11/16",
+        "F": "3/8",
+        "Gwidth": "1",
+        "H": "1 11/16"
+    },
+    "1 1/2": {
+        "maxLoad650": 1545,
+        "maxLoad750": 1380,
+        "B": "1 13/16",
+        "C": "1 1/16",
+        "D": "4 7/8",
+        "rodTakeOutE": "4 1/8",
+        "F": "5/8",
+        "Gwidth": "1 1/4",
+        "H": "2 3/8"
+    },
+    "2": {
+        "maxLoad650": 1545,
+        "maxLoad750": 1380,
+        "B": "2 1/8",
+        "C": "1 1/16",
+        "D": "5 3/4",
+        "rodTakeOutE": "5",
+        "F": "5/8",
+        "Gwidth": "1 1/4",
+        "H": "2 11/16"
+    },
+    "2 1/2": {
+        "maxLoad650": 1545,
+        "maxLoad750": 1380,
+        "B": "2 5/8",
+        "C": "5/8",
+        "D": "6",
+        "rodTakeOutE": "5 3/8",
+        "F": "1/2",
+        "Gwidth": "1",
+        "H": "3 1/4"
+    },
+    "3": {
+        "maxLoad650": 1545,
+        "maxLoad750": 1380,
+        "B": "2 7/8",
+        "C": "5/8",
+        "D": "6 5/8",
+        "rodTakeOutE": "6",
+        "F": "1/2",
+        "Gwidth": "1",
+        "H": "3 1/2"
+    },
+    "4": {
+        "maxLoad650": 2500,
+        "maxLoad750": 2230,
+        "B": "3 5/8",
+        "C": "1 1/16",
+        "D": "7 5/8",
+        "rodTakeOutE": "6 1/2",
+        "F": "3/4",
+        "Gwidth": "2",
+        "H": "4 1/2"
+    },
+    "5": {
+        "maxLoad650": 2500,
+        "maxLoad750": 2230,
+        "B": "3 15/16",
+        "C": "7/8",
+        "D": "8 1/8",
+        "rodTakeOutE": "7",
+        "F": "3/4",
+        "Gwidth": "2",
+        "H": "5"
+    },
+    "6": {
+        "maxLoad650": 2865,
+        "maxLoad750": 2555,
+        "B": "4 7/8",
+        "C": "1 1/4",
+        "D": "9 3/8",
+        "rodTakeOutE": "8 1/2",
+        "F": "3/4",
+        "Gwidth": "1 1/2",
+        "H": "5 3/4"
+    },
+    "8": {
+        "maxLoad650": 2865,
+        "maxLoad750": 2555,
+        "B": "6",
+        "C": "1 1/4",
+        "D": "10 3/2",
+        "rodTakeOutE": "9 1/2",
+        "F": "3/4",
+        "Gwidth": "1 1/2",
+        "H": "6 7/8"
+    },
+    "10": {
+        "maxLoad650": 3240,
+        "maxLoad750": 2890,
+        "B": "6 7/8",
+        "C": "1 7/16",
+        "D": "11 7/8",
+        "rodTakeOutE": "10 7/16",
+        "F": "1",
+        "Gwidth": "2 1/2",
+        "H": "8 1/4"
+    },
+    "12": {
+        "maxLoad650": 3240,
+        "maxLoad750": 2890,
+        "B": "7 7/8",
+        "C": "1 1/2",
+        "D": "12 7/8",
+        "rodTakeOutE": "11 7/16",
+        "F": "1",
+        "Gwidth": "2 1/2",
+        "H": "9 1/4"
+    },
+    "14": {
+        "maxLoad650": 4300,
+        "maxLoad750": 3835,
+        "B": "9 1/16",
+        "C": "2",
+        "D": "14 5/16",
+        "rodTakeOutE": "12 11/16",
+        "F": "1 1/4",
+        "G width": "3",
+        "H": "10 11/16"
+    },
+    "16": {
+        "maxLoad650": 4300,
+        "maxLoad750": 3835,
+        "B": "10 1/16",
+        "C": "2",
+        "D": "15 5/16",
+        "rodTakeOutE": "13 11/16",
+        "F": "1 1/4",
+        "Gwidth": "3",
+        "H": "11 11/16"
+    },
+    "18": {
+        "maxLoad650": 4300,
+        "maxLoad750": 3835,
+        "B": "11 1/16",
+        "C": "2",
+        "D": "16 5/16",
+        "rodTakeOutE": "14 11/16",
+        "F": "1 1/4",
+        "Gwidth": "3",
+        "H": "12 11/16"
+    },
+    "20": {
+        "maxLoad650": 5490,
+        "maxLoad750": 4900,
+        "B": "12 3/8",
+        "C": "2",
+        "D": "17 5/8",
+        "rodTakeOutE": "15 7/8",
+        "F": "1 3/8",
+        "Gwidth": "3",
+        "H": "14"
+    },
+    "24": {
+        "maxLoad650": 4500,
+        "maxLoad750": 4015,
+        "B": "14 3/8",
+        "C": "2",
+        "D": "19 5/8",
+        "rodTakeOutE": "17 7/8",
+        "F": "1 3/8",
+        "Gwidth": "3",
+        "H": "16"
+    },
+    "28": {
+        "maxLoad650": 6000,
+        "maxLoad750": null,
+        "B": "17 1/2",
+        "C": "2 1/4",
+        "D": "24 1/4",
+        "rodTakeOutE": "21 3/4",
+        "F": "1 1/4",
+        "Gwidth": "4",
+        "H": "20"
+    },
+    "30": {
+        "maxLoad650": 7500,
+        "maxLoad750": null,
+        "B": "18 1/2",
+        "C": "2 1/2",
+        "D": "26 1/8",
+        "rodTakeOutE": "23 3/8",
+        "F": "1 3/8",
+        "Gwidth": "5",
+        "H": "21 1/4"
+    },
+    "32": {
+        "maxLoad650": 8250,
+        "maxLoad750": null,
+        "B": "19 5/8",
+        "C": "2 1/2",
+        "D": "28",
+        "rodTakeOutE": "25",
+        "F": "1 1/2",
+        "Gwidth": "6",
+        "H": "22 5/8"
+    },
+    "34": {
+        "maxLoad650": 9800,
+        "maxLoad750": null,
+        "B": "21 1/2",
+        "C": "3",
+        "D": "31 1/4",
+        "rodTakeOutE": "27 3/4",
+        "F": "1 3/4",
+        "Gwidth": "5",
+        "H": "25"
+    },
+    "36": {
+        "maxLoad650": 10500,
+        "maxLoad750": null,
+        "B": "22 1/2",
+        "C": "3",
+        "D": "32 1/4",
+        "rodTakeOutE": "28 3/4",
+        "F": "1 3/4",
+        "Gwidth": "5",
+        "H": "26"
+    }
+};
+        const fig295HData = 
+        {
+    "6": {
+        "maxLoad650": 3500,
+        "maxLoad750": 3125,
+        "B": "4 3/4",
+        "C": "1 3/4",
+        "D": "10 13/16",
+        "rodTakeOutE": "8 15/16",
+        "F": "1",
+        "Gwidth": "2 1/2",
+        "H": "6"
+    },
+    "8": {
+        "maxLoad650": 4800,
+        "maxLoad750": 4285,
+        "B": "6",
+        "C": "2",
+        "D": "11 3/8",
+        "rodTakeOutE": "10 1/8",
+        "F": "1 1/8",
+        "Gwidth": "2 1/2",
+        "H": "7 1/4"
+    },
+    "10": {
+        "maxLoad650": 5500,
+        "maxLoad750": 4910,
+        "B": "7 1/4",
+        "C": "2 1/4",
+        "D": "13 1/8",
+        "rodTakeOutE": "11 3/8",
+        "F": "1 1/4",
+        "Gwidth": "3 1/2",
+        "H": "9"
+    },
+    "12": {
+        "maxLoad650": 7000,
+        "maxLoad750": 6250,
+        "B": "8 5/8",
+        "C": "2 1/2",
+        "D": "14 5/16",
+        "rodTakeOutE": "12 9/16",
+        "F": "1 3/8",
+        "Gwidth": "3 1/2",
+        "H": "10 3/8"
+    },
+    "14": {
+        "maxLoad650": 9500,
+        "maxLoad750": 8485,
+        "B": "9 5/8",
+        "C": "2 1/2",
+        "D": "15 1/2",
+        "rodTakeOutE": "13 1/2",
+        "F": "1 1/2",
+        "Gwidth": "4",
+        "H": "11 5/8"
+    },
+    "16": {
+        "maxLoad650": 10000,
+        "maxLoad750": 8930,
+        "B": "10 7/8",
+        "C": "3",
+        "D": "17 1/8",
+        "rodTakeOutE": "14 7/8",
+        "F": "1 3/4",
+        "Gwidth": "4 1/2",
+        "H": "13 1/8"
+    },
+    "18": {
+        "maxLoad650": 13800,
+        "maxLoad750": 12325,
+        "B": "12 1/2",
+        "C": "3 1/2",
+        "D": "18 1/4",
+        "rodTakeOutE": "16 1/4",
+        "F": "2",
+        "Gwidth": "4",
+        "H": "14 1/2"
+    },
+    "20": {
+        "maxLoad650": 15300,
+        "maxLoad750": 13665,
+        "B": "13 1/2",
+        "C": "3 1/2",
+        "D": "19 3/4",
+        "rodTakeOutE": "17 1/4",
+        "F": "2",
+        "Gwidth": "5",
+        "H": "16"
+    },
+    "24": {
+        "maxLoad650": 16300,
+        "maxLoad750": 14555,
+        "B": "15 1/2",
+        "C": "3 1/2",
+        "D": "22 5/16",
+        "rodTakeOutE": "19 5/16",
+        "F": "2 ",
+        "Gwidth": "6",
+        "H": "18 1/2"
+    },
+    "28": {
+        "maxLoad650": 18000,
+        "maxLoad750": null,
+        "B": "18 7/8",
+        "C": "4",
+        "D": "31 3/4",
+        "rodTakeOutE": "27 1/4",
+        "F": "2 1/4",
+        "Gwidth": "7",
+        "H": "23 3/8"
+    },
+    "30": {
+        "maxLoad650": 20500,
+        "maxLoad750": null,
+        "B": "19 7/8",
+        "C": "4 1/4",
+        "D": "32 3/4",
+        "rodTakeOutE": "28 1/4",
+        "F": "2 1/4",
+        "Gwidth": "8",
+        "H": "24 3/8"
+    },
+    "32": {
+        "maxLoad650": 23750,
+        "maxLoad750": null,
+        "B": "21 3/4",
+        "C": "4 1/4",
+        "D": "36",
+        "rodTakeOutE": "31",
+        "F": "2 1/2",
+        "Gwidth": "8",
+        "H": "26 3/4"
+    },
+    "34": {
+        "maxLoad650": 25000,
+        "maxLoad750": null,
+        "B": "23 3/8",
+        "C": "4 1/4",
+        "D": "37 1/2",
+        "rodTakeOutE": "32 1/2",
+        "F": "2 1/2",
+        "Gwidth": "7",
+        "H": "28 3/8"
+    },
+    "36": {
+        "maxLoad650": 28000,
+        "maxLoad750": null,
+        "B": "24 5/8",
+        "C": "4 1/2",
+        "D": "40 1/4",
+        "rodTakeOutE": "34 3/4",
+        "F": "2 3/4",
+        "Gwidth": "8",
+        "H": "30 1/8"
+    }
+};
+        const fig65Data = 
+        {
+    "1/2": {
+        "maxLoad": 150,
+        "rodSizeA": "3/8",
+        "B": "1 11/16",
+        "C": "2 3/32",
+        "rodTakeOutE": "1 1/4",
+        "adjustmentF": "7/16",
+        "GwidthLower": "5/8"
+    },
+    "3/4": {
+        "maxLoad": 250,
+        "rodSizeA": "3/8",
+        "B": "1 7/8",
+        "C": "2 13/32",
+        "rodTakeOutE": "1 7/16",
+        "adjustmentF": "1/2",
+        "GwidthLower": "3/4"
+    },
+    "1": {
+        "maxLoad": 250,
+        "rodSizeA": "3/8",
+        "B": "2 5/32",
+        "C": "2 13/16",
+        "rodTakeOutE": "1 11/16",
+        "adjustmentF": "5/8",
+        "GwidthLower": "3/4"
+    },
+    "1 1/4": {
+        "maxLoad": 250,
+        "rodSizeA": "3/8",
+        "B": "2 17/32",
+        "C": "3 3/8",
+        "rodTakeOutE": "2 1/16",
+        "adjustmentF": "13/16",
+        "GwidthLower": "3/4"
+    },
+    "1 1/2": {
+        "maxLoad": 250,
+        "rodSizeA": "3/8",
+        "B": "2 13/16",
+        "C": "3 13/16",
+        "rodTakeOutE": "2 3/8",
+        "adjustmentF": "15/16",
+        "GwidthLower": "3/4"
+    },
+    "2": {
+        "maxLoad": 250,
+        "rodSizeA": "3/8",
+        "B": "3 11/32",
+        "C": "4 17/32",
+        "rodTakeOutE": "2 7/8",
+        "adjustmentF": "1 3/16",
+        "GwidthLower": "3/4"
+    },
+    "2 1/2": {
+        "maxLoad": 350,
+        "rodSizeA": "3/8",
+        "B": "3 27/32",
+        "C": "5 9/32",
+        "rodTakeOutE": "3 1/4",
+        "adjustmentF": "1 5/16",
+        "GwidthLower": "3/4"
+    },
+    "3": {
+        "maxLoad": 350,
+        "rodSizeA": "3/8",
+        "B": "4 15/32",
+        "C": "6 7/32",
+        "rodTakeOutE": "3 7/8",
+        "adjustmentF": "1 5/8",
+        "GwidthLower": "3/4"
+    },
+    "3 1/2": {
+        "maxLoad": 350,
+        "rodSizeA": "3/8",
+        "B": "4 31/32",
+        "C": "6 31/32",
+        "rodTakeOutE": "4 3/8",
+        "adjustmentF": "1 7/8",
+        "GwidthLower": "3/4"
+    },
+    "4": {
+        "maxLoad": 400,
+        "rodSizeA": "3/8",
+        "B": "5 17/32",
+        "C": "7 25/32",
+        "rodTakeOutE": "4 15/16",
+        "adjustmentF": "2 1/8",
+        "GwidthLower": "3/4"
+    }
+};
+        const fig167ShieldSelectionData = {
+            "1/2": { "1": "X1A", "1.5": "1A", "2": "2A" }, "3/4": { "1": "1A", "1.5": "2A", "2": "3A" },
+            "1": { "1": "1A", "1.5": "2A", "2": "3A" }, "1 1/4": { "1": "2A", "1.5": "3A", "2": "4A" },
+            "1 1/2": { "1": "2A", "1.5": "3A", "2": "4A" }, "2": { "1": "3A", "1.5": "4A", "2": "5A" },
+            "2 1/2": { "1": "4A", "1.5": "5A", "2": "6A" }, "3": { "1": "4A", "1.5": "5A", "2": "6A" },
+            "3 1/2": { "1": "5A", "1.5": "6A", "2": "7A" }, "4": { "1": "5A", "1.5": "6A", "2": "7A" },
+            "5": { "1": "6A", "1.5": "7A", "2": "8A" }, "6": { "1": "7A", "1.5": "8A", "2": "9A" },
+            "8": { "1": "9B", "1.5": "10B", "2": "11B" }, "10": { "1": "10B", "1.5": "11B", "2": "12B" },
+            "12": { "1": "12C", "1.5": "13C", "2": "14C" }, "14": { "1": "13C", "1.5": "14C", "2": "15C" },
+            "16": { "1": "15C", "1.5": "16C", "2": "17C" }, "18": { "1": "18C", "1.5": "19C", "2": "20C" },
+            "20": { "1": "20C", "1.5": "21C", "2": "22C" }, "24": { "1": "23C", "1.5": "24C", "2": "25C" }
+        };
+        const fig167ShieldDimensionsData = {
+            "X1A": { "L": 12, "insulationOD": 1.90, "fig260Spacer": "1 1/2" }, "1A": { "L": 12, "insulationOD": 2.38, "fig260Spacer": 2 },
+            "2A": { "L": 12, "insulationOD": 2.88, "fig260Spacer": "2 1/2" }, "3A": { "L": 12, "insulationOD": 3.50, "fig260Spacer": 3 },
+            "4A": { "L": 12, "insulationOD": 4.50, "fig260Spacer": "3 1/2" }, "5A": { "L": 12, "insulationOD": 5.00, "fig260Spacer": 4 },
+            "6A": { "L": 12, "insulationOD": 5.56, "fig260Spacer": 5 }, "7A": { "L": 12, "insulationOD": 6.63, "fig260Spacer": 6 },
+            "8A": { "L": 12, "insulationOD": 7.63, "fig260Spacer": 7 }, "9A": { "L": 12, "insulationOD": 8.63, "fig260Spacer": 8 },
+            "8B": { "L": 18, "insulationOD": 8.63, "fig260Spacer": 8 }, "9B": { "L": 18, "insulationOD": 9.63, "fig260Spacer": null },
+            "10B": { "L": 18, "insulationOD": 10.75, "fig260Spacer": 10 }, "11B": { "L": 18, "insulationOD": 11.75, "fig260Spacer": null },
+            "12B": { "L": 18, "insulationOD": 12.75, "fig260Spacer": 12 }, "11C": { "L": 24, "insulationOD": 12.00, "fig260Spacer": null },
+            "12C": { "L": 24, "insulationOD": 12.75, "fig260Spacer": 12 }, "13C": { "L": 24, "insulationOD": 14.00, "fig260Spacer": 14 },
+            "14C": { "L": 24, "insulationOD": 15.00, "fig260Spacer": null }, "15C": { "L": 24, "insulationOD": 16.00, "fig260Spacer": 16 },
+            "16C": { "L": 24, "insulationOD": 17.00, "fig260Spacer": null }, "17C": { "L": 24, "insulationOD": 18.00, "fig260Spacer": 18 },
+            "18C": { "L": 24, "insulationOD": 19.00, "fig260Spacer": null }, "19C": { "L": 24, "insulationOD": 20.00, "fig260Spacer": 20 },
+            "20C": { "L": 24, "insulationOD": 21.00, "fig260Spacer": null }, "21C": { "L": 24, "insulationOD": 22.00, "fig260Spacer": null },
+            "22C": { "L": 24, "insulationOD": 23.00, "fig260Spacer": null }, "23C": { "L": 24, "insulationOD": 24.00, "fig260Spacer": 24 },
+            "24C": { "L": 24, "insulationOD": 25.00, "fig260Spacer": null }, "25C": { "L": 24, "insulationOD": 27.00, "fig260Spacer": null },
+            "26C": { "L": 24, "insulationOD": 28.00, "fig260Spacer": null }, "27C": { "L": 24, "insulationOD": 30.00, "fig260Spacer": null }
+        };
+        const fig69Data = {
+            "1/2": { "maxLoad": 300, "weight": 0.10, "rodSizeA": "3/8", "B": "2 7/8", "C": "2", "F": "1 9/16", "Gwidth": "5/8" },
+            "3/4": { "maxLoad": 300, "weight": 0.10, "rodSizeA": "3/8", "B": "2 3/4", "C": "1 7/8", "F": "1 5/16", "Gwidth": "5/8" },
+            "1": { "maxLoad": 300, "weight": 0.10, "rodSizeA": "3/8", "B": "2 9/16", "C": "1 11/16", "F": "1", "Gwidth": "5/8" },
+            "1 1/4": { "maxLoad": 300, "weight": 0.10, "rodSizeA": "3/8", "B": "2 5/8", "C": "1 3/4", "F": "7/8", "Gwidth": "5/8" },
+            "1 1/2": { "maxLoad": 300, "weight": 0.10,"rodSizeA": "3/8",  "B": "2 3/4", "C": "1 7/8", "F": "7/8", "Gwidth": "5/8" },
+            "2": { "maxLoad": 300, "weight": 0.11, "rodSizeA": "3/8",  "B": "3 1/4", "C": "2 3/8", "F": "1 1/8", "Gwidth": "5/8" },
+            "2 1/2": { "maxLoad": 525, "weight": 0.20, "rodSizeA": "3/8", "B": "4", "C": "2 3/4", "F": "1 5/16", "Gwidth": "3/4" },
+            "3": { "maxLoad": 525, "weight": 0.20, "rodSizeA": "3/8", "B": "13/16", "C": "2 15/16", "F": "1 3/16", "Gwidth": "3/4" },
+            "4": { "maxLoad": 650, "weight": 0.30, "rodSizeA": "3/8", "B": "4 11/16", "C": "3 13/16", "F": "1 9/16", "Gwidth": "3/4" },
+            "5": { "maxLoad": 1000, "weight": 0.54, "rodSizeA": "1/2", "B": "5 5/16", "C": "4 3/8", "F": "1 9/16", "Gwidth": "3/4" },
+            "6": { "maxLoad": 1000, "weight": 0.65, "rodSizeA": "1/2", "B": "6 11/16", "C": "5 9/16", "F": "2 1/4", "Gwidth": "3/4" },
+            "8": { "maxLoad": 1000, "weight": 1, "rodSizeA": "1/2", "B": "8 9/16", "C": "7 9/16", "F": "3 1/4", "Gwidth": "3/4" },
+        };
+        const fig53SDData = 
+        {
+    "2 1/2": {
+        "rodSizeA": "3/4",
+        "cRodTakeOut": "7 5/16",
+        "T": "1/2",
+        "D": "3 1/2",
+        "R": "1 1/2",
+        "hMaxDia": "15/16"
+    },
+    "3": {
+        "rodSizeA": "3/4",
+        "cRodTakeOut": "7 7/16",
+        "T": "1/2",
+        "D": "3 1/2",
+        "R": "1 1/2",
+        "hMaxDia": "15/16"
+    },
+    "3 1/2": {
+        "rodSizeA": "7/8",
+        "cRodTakeOut": "7 1/2",
+        "T": "1/2",
+        "D": "3 1/2",
+        "R": "1 1/2",
+        "hMaxDia": "1 1/16"
+    },
+    "4": {
+        "rodSizeA": "7/8",
+        "cRodTakeOut": "7 1/2",
+        "T": "1/2",
+        "D": "3 1/2",
+        "R": "1 1/2",
+        "hMaxDia": "1 1/16"
+    },
+    "6": {
+        "rodSizeA": "7/8",
+        "cRodTakeOut": "7 9/16",
+        "T": "1/2",
+        "D": "3 1/2",
+        "R": "1 1/2",
+        "hMaxDia": "1 1/16"
+    },
+    "8": {
+        "rodSizeA": "1",
+        "cRodTakeOut": "7 7/16",
+        "T": "1/2",
+        "D": "5",
+        "R": "2",
+        "hMaxDia": "1 3/8"
+    },
+    "10": {
+        "rodSizeA": "1 1/4",
+        "cRodTakeOut": "7 5/16",
+        "T": "5/8",
+        "D": "6",
+        "R": "2 1/2",
+        "hMaxDia": "1 1/2"
+    },
+    "12": {
+        "rodSizeA": "1 1/2",
+        "cRodTakeOut": "7 1/8",
+        "T": "3/4",
+        "D": "7",
+        "R": "3",
+        "hMaxDia": "1 3/4"
+    }
+};
+        const fig40Data = 
+
+        {
+    "2": {
+        "maxLoadRigid": 900,
+        "maxLoadSpring": 1800,
+        "cc": 18,
+        "E": 9,
+        "Fmax": "1/2",
+        "Gmax": "2 1/2",
+        "S": "3/4",
+        "aCS": "1 1/4",
+        "aAlloy": "7/8",
+        "bMax": "2"
+    },
+    "2 1/2": {
+        "maxLoadRigid": 900,
+        "maxLoadSpring": 1800,
+        "cc": 20,
+        "E": 10,
+        "Fmax": "1/2",
+        "Gmax": "2 1/2",
+        "S": "3/4",
+        "aCS": "1 1/4",
+        "aAlloy": "7/8",
+        "bMax": "2"
+    },
+    "3": {
+        "maxLoadRigid": 1500,
+        "maxLoadSpring": 3000,
+        "cc": 20,
+        "E": 10,
+        "Fmax": "5/8",
+        "Gmax": "3",
+        "S": "3/4",
+        "aCS": "1 1/2",
+        "aAlloy": "7/8",
+        "bMax": "2"
+    },
+    "4": {
+        "maxLoadRigid": 2200,
+        "maxLoadSpring": 4400,
+        "cc": 22,
+        "E": 11,
+        "Fmax": "3/4",
+        "Gmax": "3",
+        "S": "3/4",
+        "aCS": "1 1/2",
+        "aAlloy": "1 1/8",
+        "bMax": "2"
+    },
+    "5": {
+        "maxLoadRigid": 2200,
+        "maxLoadSpring": 4400,
+        "cc": 22,
+        "E": 11,
+        "Fmax": "3/4",
+        "Gmax": "4",
+        "S": "3/4",
+        "aCS": "2",
+        "aAlloy": "1 1/8",
+        "bMax": "2"
+    },
+    "6": {
+        "maxLoadRigid": 3000,
+        "maxLoadSpring": 6000,
+        "cc": 24,
+        "E": 12,
+        "Fmax": "7/8",
+        "Gmax": "4",
+        "S": "1",
+        "aCS": "7/8",
+        "aAlloy": "1 1/4",
+        "bMax": "2"
+    },
+    "8": {
+        "maxLoadRigid": 3000,
+        "maxLoadSpring": 6000,
+        "cc": 27,
+        "E": "13 1/2",
+        "Fmax": "7/8",
+        "Gmax": "5",
+        "S": "1",
+        "aCS": "7/8",
+        "aAlloy": "1 1/4",
+        "bMax": "2"
+    },
+    "10": {
+        "maxLoadRigid": 5500,
+        "maxLoadSpring": 11000,
+        "cc": 30,
+        "E": 15,
+        "Fmax": "1 1/4",
+        "Gmax": "6",
+        "S": "1 1/2",
+        "aCS": "1 1/4",
+        "aAlloy": "1 5/8",
+        "bMax": "3"
+    },
+    "12": {
+        "maxLoadRigid": 7800,
+        "maxLoadSpring": 15600,
+        "cc": 32,
+        "E": 16,
+        "Fmax": "1 1/2",
+        "Gmax": "7",
+        "S": "1 3/4",
+        "aCS": "1 3/8",
+        "aAlloy": "1 7/8",
+        "bMax": "3"
+    },
+    "14": {
+        "maxLoadRigid": 7800,
+        "maxLoadSpring": 15600,
+        "cc": 34,
+        "E": 17,
+        "Fmax": "1 1/2",
+        "Gmax": "7",
+        "S": "1 3/4",
+        "aCS": "1 3/8",
+        "aAlloy": "1 3/8",
+        "bMax": "3"
+    },
+    "16": {
+        "maxLoadRigid": 9000,
+        "maxLoadSpring": 18000,
+        "cc": 36,
+        "E": 18,
+        "Fmax": "1 1/2",
+        "Gmax": "8",
+        "S": "2",
+        "aCS": "1 1/2",
+        "aAlloy": "2",
+        "bMax": "3"
+    },
+    "18": {
+        "maxLoadRigid": 9000,
+        "maxLoadSpring": 18000,
+        "cc": 39,
+        "E": "19 1/2",
+        "Fmax": "1 1/2",
+        "Gmax": "9",
+        "S": "2",
+        "aCS": "1 1/2",
+        "aAlloy": "2",
+        "bMax": "3"
+    },
+    "20": {
+        "maxLoadRigid": 13500,
+        "maxLoadSpring": 27000,
+        "cc": 42,
+        "E": 21,
+        "Fmax": "2",
+        "Gmax": "10",
+        "S": "2 1/2",
+        "aCS": "2 5/8",
+        "aAlloy": "2 5/8",
+        "bMax": "4 1/4"
+    },
+    "24": {
+        "maxLoadRigid": 13500,
+        "maxLoadSpring": 27000,
+        "cc": 45,
+        "E": "22 1/2",
+        "Fmax": "2",
+        "Gmax": "11",
+        "S": "2 1/2",
+        "aCS": "2 5/8",
+        "aAlloy": "2 5/8",
+        "bMax": "4 1/4"
+    }
+};
+        const fig260Data = 
+         
+        {
+    "1/2": {
+        "maxLoad": 610,
+        "rodSizeA": "3/8",
+        "B": "2 3/16",
+        "C": "2 11/16",
+        "rodTakeOutE": "1 1/2",
+        "adjustF": "5/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "3/4": {
+        "maxLoad": 610,
+        "rodSizeA": "3/8",
+        "B": "2",
+        "C": "2 11/16",
+        "rodTakeOutE": "1 5/16",
+        "adjustF": "5/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "1": {
+        "maxLoad": 730,
+        "rodSizeA": "3/8",
+        "B": "2 5/16",
+        "C": "3",
+        "rodTakeOutE": "1 5/8",
+        "adjustF": "5/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "1 1/4": {
+        "maxLoad": 730,
+        "rodSizeA": "3/8",
+        "B": "2 3/8",
+        "C": "3 1/4",
+        "rodTakeOutE": "1 11/16",
+        "adjustF": "5/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "1 1/2": {
+        "maxLoad": 730,
+        "rodSizeA": "3/8",
+        "B": "2 13/16",
+        "C": "3 13/16",
+        "rodTakeOutE": "2 1/8",
+        "adjustF": "7/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "2": {
+        "maxLoad": 730,
+        "rodSizeA": "3/8",
+        "B": "3 5/16",
+        "C": "4 1/2",
+        "rodTakeOutE": "2 5/8",
+        "adjustF": "1 1/8",
+        "G": "1/4",
+        "HwidthLower": "1"
+    },
+    "2 1/2": {
+        "maxLoad": 1350,
+        "rodSizeA": "1/2",
+        "B": "4 1/16",
+        "C": "5 1/2",
+        "rodTakeOutE": "3 3/16",
+        "adjustF": "1 5/16",
+        "G": "3/8",
+        "HwidthLower": "1"
+    },
+    "3": {
+        "maxLoad": 1350,
+        "rodSizeA": "1/2",
+        "B": "4 3/4",
+        "C": "6 1/2",
+        "rodTakeOutE": "4 1/16",
+        "adjustF": "1 5/8",
+        "G": "3/8",
+        "HwidthLower": "1"
+    },
+    "3 1/2": {
+        "maxLoad": 1350,
+        "rodSizeA": "1/2",
+        "B": "5 1/16",
+        "C": "7 1/16",
+        "rodTakeOutE": "4 3/16",
+        "adjustF": "1 13/16",
+        "G": "3/8",
+        "HwidthLower": "1 1/4"
+    },
+    "4": {
+        "maxLoad": 1430,
+        "rodSizeA": "5/8",
+        "B": "5 9/16",
+        "C": "7 13/16",
+        "rodTakeOutE": "4 1/2",
+        "adjustF": "1 11/16",
+        "G": "3/8",
+        "HwidthLower": "1 1/4"
+    },
+    "5": {
+        "maxLoad": 1430,
+        "rodSizeA": "5/8",
+        "B": "6 9/16",
+        "C": "8 15/16",
+        "rodTakeOutE": "5 1/2",
+        "adjustF": "1 15/16",
+        "G": "3/8",
+        "HwidthLower": "1 3/16"
+    },
+    "6": {
+        "maxLoad": 1940,
+        "rodSizeA": "3/4",
+        "B": "6 15/16",
+        "C": "10 1/4",
+        "rodTakeOutE": "5 3/4",
+        "adjustF": "1 11/16",
+        "G": "1/2",
+        "HwidthLower": "1 7/16"
+    },
+    "8": {
+        "maxLoad": 2000,
+        "rodSizeA": "3/4",
+        "B": "8 3/8",
+        "C": "12 11/16",
+        "rodTakeOutE": "7 3/16",
+        "adjustF": "2",
+        "G": "1/2",
+        "HwidthLower": "1 7/16"
+    },
+    "10": {
+        "maxLoad": 3600,
+        "rodSizeA": "7/8",
+        "B": "9 7/8",
+        "C": "15 1/4",
+        "rodTakeOutE": "8 7/16",
+        "adjustF": "2 1/8",
+        "G": "5/8",
+        "HwidthLower": "1 3/4"
+    },
+    "12": {
+        "maxLoad": 3800,
+        "rodSizeA": "7/8",
+        "B": "11 9/16",
+        "C": "17 15/16",
+        "rodTakeOutE": "10 1/8",
+        "adjustF": "2 13/16",
+        "G": "5/8",
+        "HwidthLower": "2"
+    },
+    "14": {
+        "maxLoad": 4200,
+        "rodSizeA": "1",
+        "B": "12 9/16",
+        "C": "19 9/16",
+        "rodTakeOutE": "10 11/16",
+        "adjustF": "2 11/16",
+        "G": "3/4",
+        "HwidthLower": "2"
+    },
+    "16": {
+        "maxLoad": 4600,
+        "rodSizeA": "1",
+        "B": "14",
+        "C": "22",
+        "rodTakeOutE": "12",
+        "adjustF": "2 3/4",
+        "G": "1",
+        "HwidthLower": "2 1/2"
+    },
+    "18": {
+        "maxLoad": 4800,
+        "rodSizeA": "1",
+        "B": "15 15/16",
+        "C": "24 15/16",
+        "rodTakeOutE": "13 15/16",
+        "adjustF": "3 13/16",
+        "G": "1",
+        "HwidthLower": "2 1/2"
+    },
+    "20": {
+        "maxLoad": 4800,
+        "rodSizeA": "1 1/4",
+        "B": "17 9/16",
+        "C": "27 9/16",
+        "rodTakeOutE": "15 3/16",
+        "adjustF": "3 7/8",
+        "G": "1 1/4",
+        "HwidthLower": "3"
+    },
+    "24": {
+        "maxLoad": 4800,
+        "rodSizeA": "1 1/4",
+        "B": "19 13/16",
+        "C": "31 13/16",
+        "rodTakeOutE": "17 5/16",
+        "adjustF": "3 7/8",
+        "G": "7/8*",
+        "HwidthLower": "3"
+    },
+    "30": {
+        "maxLoad": 6000,
+        "rodSizeA": "1 1/4",
+        "B": "24 3/16",
+        "C": "39 3/16",
+        "rodTakeOutE": "21 9/16",
+        "adjustF": "5 1/8",
+        "G": "1 1/4",
+        "HwidthLower": "3"
+    }
+  };
+        const fig137Data = 
+
+        {
+    "1/2": {
+        "rodSizeA": 1/4,
+        "maxLoad650": 580,
+        "maxLoad750": 454,
+        "maxSideLoad": 145,
+        "B": "15/16",
+        "C": "1 3/16",
+        "D": "2 3/4",
+        "E": "2 1/8",
+        "F": "2 5/16"
+    },
+    "3/4": {
+        "rodSizeA": "1/4",
+        "maxLoad650": 580,
+        "maxLoad750": 454,
+        "maxSideLoad": 145,
+        "B": "1 1/8",
+        "C": "1 3/8",
+        "D": "2 3/4",
+        "E": "2 1/8",
+        "F": "2 7/32"
+    },
+    "1": {
+        "rodSizeA": "1/4",
+        "maxLoad650": 580,
+        "maxLoad750": 454,
+        "maxSideLoad": 145,
+        "B": "1 3/8",
+        "C": "1 5/8",
+        "D": "2 3/4",
+        "E": "2 1/8",
+        "F": "2 3/32"
+    },
+    "1 1/4": {
+        "rodSizeA": "3/8",
+        "maxLoad650": 1460,
+        "maxLoad750": 1144,
+        "maxSideLoad": 365,
+        "B": "1 11/16",
+        "C": "2 1/16",
+        "D": "2 7/8",
+        "E": "2 1/8",
+        "F": "2 1/32"
+    },
+    "1 1/2": {
+        "rodSizeA": "3/8",
+        "maxLoad650": 1460,
+        "maxLoad750": 1144,
+        "maxSideLoad": 365,
+        "B": "2",
+        "C": "2 3/8",
+        "D": "3",
+        "E": "2 1/2",
+        "F": "2 1/16"
+    },
+    "2": {
+        "rodSizeA": "3/8",
+        "maxLoad650": 1460,
+        "maxLoad750": 1144,
+        "maxSideLoad": 365,
+        "B": "2 7/16",
+        "C": "2 13/16",
+        "D": "3 1/4",
+        "E": "2 1/2",
+        "F": "2 1/16"
+    },
+    "2 1/2": {
+        "rodSizeA": "1/2",
+        "maxLoad650": 2700,
+        "maxLoad750": 2114,
+        "maxSideLoad": 675,
+        "B": "2 15/16",
+        "C": "3 7/16",
+        "D": "3 3/4",
+        "E": "3",
+        "F": "2 5/16"
+    },
+    "3": {
+        "rodSizeA": "1/2",
+        "maxLoad650": 2700,
+        "maxLoad750": 2114,
+        "maxSideLoad": 675,
+        "B": "3 9/16",
+        "C": "4 1/16",
+        "D": "4",
+        "E": "3",
+        "F": "2 1/4"
+    },
+    "3 1/2": {
+        "rodSizeA": "1/2",
+        "maxLoad650": 2700,
+        "maxLoad750": 2114,
+        "maxSideLoad": 675,
+        "B": "4 1/16",
+        "C": "4 9/16",
+        "D": "4 1/4",
+        "E": "3",
+        "F": "2 1/4"
+    },
+    "4": {
+        "rodSizeA": "1/2",
+        "maxLoad650": 2700,
+        "maxLoad750": 2114,
+        "maxSideLoad": 675,
+        "B": "4 9/16",
+        "C": "5 1/16",
+        "D": "4 1/2",
+        "E": "3",
+        "F": "2 1/4"
+    },
+    "5": {
+        "rodSizeA": "1/2",
+        "maxLoad650": 2700,
+        "maxLoad750": 2114,
+        "maxSideLoad": 675,
+        "B": "5 5/8",
+        "C": "6 1/8",
+        "D": "5",
+        "E": "3",
+        "F": "2 7/32"
+    },
+    "6": {
+        "rodSizeA": "5/8",
+        "maxLoad650": 4320,
+        "maxLoad750": 3382,
+        "maxSideLoad": 1080,
+        "B": "6 3/4",
+        "C": "7 3/8",
+        "D": "6 1/8",
+        "E": "3 1/2",
+        "F": "2 13/16"
+    },
+    "8": {
+        "rodSizeA": "5/8",
+        "maxLoad650": 4320,
+        "maxLoad750": 3382,
+        "maxSideLoad": 1080,
+        "B": "8 3/4",
+        "C": "9 3/8",
+        "D": "7 1/8",
+        "E": "3 1/2",
+        "F": "2 13/16"
+    },
+    "10": {
+        "rodSizeA": "3/4",
+        "maxLoad650": 6460,
+        "maxLoad750": 5060,
+        "maxSideLoad": 1615,
+        "B": "10 7/8",
+        "C": "11 5/8",
+        "D": "8 3/8",
+        "E": "4",
+        "F": "3"
+    },
+    "12": {
+        "rodSizeA": "7/8",
+        "maxLoad650": 9960,
+        "maxLoad750": 7016,
+        "maxSideLoad": 2240,
+        "B": "12 7/8",
+        "C": "13 3/4",
+        "D": "9 5/8",
+        "E": "4",
+        "F": "3 1/4"
+    },
+    "14": {
+        "rodSizeA": "7/8",
+        "maxLoad650": 9960,
+        "maxLoad750": 7016,
+        "maxSideLoad": 2240,
+        "B": "14 1/8",
+        "C": "15",
+        "D": "10 1/4",
+        "E": "4 1/4",
+        "F": "3 1/4"
+    },
+    "16": {
+        "rodSizeA": "7/8",
+        "maxLoad650": 9960,
+        "maxLoad750": 7016,
+        "maxSideLoad": 2240,
+        "B": "16 1/8",
+        "C": "17",
+        "D": "11 1/4",
+        "E": "4 1/4",
+        "F": "3 1/4"
+    },
+    "18": {
+        "rodSizeA": "1",
+        "maxLoad650": 11800,
+        "maxLoad750": 9240,
+        "maxSideLoad": null,
+        "B": "18 1/8",
+        "C": "19 1/8",
+        "D": "12 5/8",
+        "E": "4 3/4",
+        "F": "3 5/8"
+    },
+    "20": {
+        "rodSizeA": "1",
+        "maxLoad650": 11800,
+        "maxLoad750": 9240,
+        "maxSideLoad": null,
+        "B": "20 1/8",
+        "C": "21 1/8",
+        "D": "13 5/8",
+        "E": "4 3/4",
+        "F": "3 5/8"
+    },
+    "24": {
+        "rodSizeA": "1",
+        "maxLoad650": 11800,
+        "maxLoad750": 9240,
+        "maxSideLoad": null,
+        "B": "24 1/8",
+        "C": "25 1/8",
+        "D": "15 5/8",
+        "E": "4 3/4",
+        "F": "3 5/8"
+    },
+    "30": {
+        "rodSizeA": "1",
+        "maxLoad650": 11800,
+        "maxLoad750": 9240,
+        "maxSideLoad": null,
+        "B": "30 1/8",
+        "C": "31 1/8",
+        "D": "18 5/8",
+        "E": "4 3/4",
+        "F": "3 5/8"
+    },
+    "36": {
+        "rodSizeA": "1",
+        "maxLoad650": 11800,
+        "maxLoad750": 9240,
+        "maxSideLoad": null,
+        "B": "36 1/8",
+        "C": "37 1/8",
+        "D": "21 5/8",
+        "E": "4 3/4",
+        "F": "3 5/8"
+    }
+};
+        const fig86Data = {
+            "3/8": { "torque": 60, "maxLoad": 400, "C": "1 3/4", "E": "5/8", "H": "1 3/8", "weightFig86": 0.28, "weightFig88": 0.26 },
+            "1/2": { "torque": 60, "maxLoad": 400, "C": "1 3/4", "E": "5/8", "H": "1 3/8", "weightFig86": 0.31, "weightFig88": 0.29 },
+            "5/8": { "torque": 60, "maxLoad": 440, "C": 2, "E": "3/4", "H": "1 1/2", "weightFig86": 0.42, "weightFig88": 0.40 },
+            "3/4": { "torque": 60, "maxLoad": 500, "C": 2, "E": "3/4", "H": "1 1/2", "weightFig86": 0.55, "weightFig88": 0.53 }
+        };
+        const fig92Data = {
+            "3/8": { "setScrewSize": "3/8", "torque": 60, "maxLoadTop": 500, "maxLoadBottom": 250, "weight": 0.34, "C": "1 5/16", "D": "1 9/16", "E": "9/16", "F": "13/16", "G": "3/8", "H": "1/2" },
+            "1/2": { "setScrewSize": "1/2", "torque": 125, "maxLoadTop": 950, "maxLoadBottom": 760, "weight": 0.63, "C": "1 3/8", "D": "1 13/16", "E": "1/2", "F": "1 1/16", "G": "7/16", "H": "23/32" }
+        };
+        const fig93Data = {
+            "3/8": { "setScrewSize": "3/8", "torque": 60, "maxLoadTop": 500, "maxLoadBottom": 250, "weight": 0.41, "C": "1 5/16", "D": "2 5/32", "E": "9/16", "F": "13/16", "G": "3/8", "H": "5/8" },
+            "1/2": { "setScrewSize": "1/2", "torque": 125, "maxLoadTop": 950, "maxLoadBottom": 760, "weight": 0.75, "C": "1 3/8", "D": "2 11/32", "E": "1/2", "F": "1 1/16", "G": "7/16", "H": "13/16" }
+        };
+        const fig94Data = {
+            "5/8": { "setScrewSize": "3/8", "torque": 60, "maxLoad": 1200, "weight": 0.66, "B": "1 3/4", "C": "2 1/4", "D": "3/4", "E": "1 1/4", "F": "1" },
+            "3/4": { "setScrewSize": "3/8", "torque": 60, "maxLoad": 1600, "weight": 0.83, "B": "1 7/8", "C": "2 3/8", "D": "3/4", "E": "1 3/8", "F": "1 3/16" }
+        };
+        const fig228Data = {
+            "1": { "maxRodSizeA": "5/8", "maxLoad": 2160, "weight": 3.3, "zMax": 0.60, "B": "1 1/16", "jawAndEyeNutSize": "228-1" },
+            "2": { "maxRodSizeA": "7/8", "maxLoad": 4480, "weight": 7.0, "zMax": 0.60, "B": "1 3/8", "jawAndEyeNutSize": "228-2" },
+            "3": { "maxRodSizeA": "7/8", "maxLoad": 4480, "weight": 10.6, "zMax": 0.6, "B": "1 3/8", "jawAndEyeNutSize": "228-2" },
+            "4": { "maxRodSizeA": "1 1/2", "maxLoad": 11500, "weight": 19.3, "zMax": 1.031, "B": "2 3/8", "jawAndEyeNutSize": "228-3" },
+            "5": { "maxRodSizeA": "1 1/2", "maxLoad": 11500, "weight": 31, "zMax": 1.031, "B": "2 3/8", "jawAndEyeNutSize": "228-3" }
+        };
+        const fig140Data = {
+            "3/8": { "threadsPerInch": 16, "maxLoad650": 730, "maxLoad750": 572, "stdRodLengthD": "2 1/2" },
+            "1/2": { "threadsPerInch": 13, "maxLoad650": 1350, "maxLoad750": 1057, "stdRodLengthD": "2 1/2" },
+            "5/8": { "threadsPerInch": 11, "maxLoad650": 2160, "maxLoad750": 1692, "stdRodLengthD": "2 1/2" },
+            "3/4": { "threadsPerInch": 10, "maxLoad650": 3230, "maxLoad750": 2530, "stdRodLengthD": 3 },
+            "7/8": { "threadsPerInch": 9, "maxLoad650": 4480, "maxLoad750": 3508, "stdRodLengthD": "3 1/2" },
+            "1": { "threadsPerInch": 8, "maxLoad650": 5900, "maxLoad750": 4620, "stdRodLengthD": 4 },
+            "1 1/4": { "threadsPerInch": 7, "maxLoad650": 9500, "maxLoad750": 7440, "stdRodLengthD": 5 },
+            "1 1/2": { "threadsPerInch": 6, "maxLoad650": 13800, "maxLoad750": 10807, "stdRodLengthD": 6 },
+            "1 3/4": { "threadsPerInch": 5, "maxLoad650": 18600, "maxLoad750": 14566, "stdRodLengthD": 7 },
+            "2": { "threadsPerInch": "4 1/2", "maxLoad650": 24600, "maxLoad750": 19265, "stdRodLengthD": 8 },
+            "2 1/4": { "threadsPerInch": "4 1/2", "maxLoad650": 32300, "maxLoad750": 25295, "stdRodLengthD": 9 },
+            "2 1/2": { "threadsPerInch": 4, "maxLoad650": 39800, "maxLoad750": 31169, "stdRodLengthD": 10 },
+            "2 3/4": { "threadsPerInch": 4, "maxLoad650": 49400, "maxLoad750": 38687, "stdRodLengthD": 11 },
+            "3": { "threadsPerInch": 4, "maxLoad650": 60100, "maxLoad750": 47066, "stdRodLengthD": 12 },
+            "3 1/4": { "threadsPerInch": 4, "maxLoad650": 71900, "maxLoad750": 56307, "stdRodLengthD": 13 },
+            "3 1/2": { "threadsPerInch": 4, "maxLoad650": 84700, "maxLoad750": 66331, "stdRodLengthD": 14 },
+            "3 3/4": { "threadsPerInch": 4, "maxLoad650": 98500, "maxLoad750": 77139, "stdRodLengthD": 15 },
+            "4": { "threadsPerInch": 4, "maxLoad650": 113400, "maxLoad750": 88807, "stdRodLengthD": 18 },
+            "4 1/4": { "threadsPerInch": "4 UN", "maxLoad650": 129400, "maxLoad750": 101337, "stdRodLengthD": 18 },
+            "4 1/2": { "threadsPerInch": "4 UN", "maxLoad650": 146600, "maxLoad750": 114807, "stdRodLengthD": 18 },
+            "4 3/4": { "threadsPerInch": "4 UN", "maxLoad650": 164700, "maxLoad750": 128982, "stdRodLengthD": 18 },
+            "5": { "threadsPerInch": "4 UN", "maxLoad650": 184000, "maxLoad750": 144096, "stdRodLengthD": 18 }
+        };
+
+        const fig60Data = {
+    "3/8": {
+        "maxLoad650": 730,
+        "maxLoad750": 572,
+        "stockSize": "3 x 3 x 1/4",
+        "holeDiaH": "1/2"
+    },
+    "1/2": {
+        "maxLoad650": 1350,
+        "maxLoad750": 1057,
+        "stockSize": "3 x 3 x 1/4",
+        "holeDiaH": "5/8"
+    },
+    "5/8": {
+        "maxLoad650": 2160,
+        "maxLoad750": 1692,
+        "stockSize": "3 x 3 x 3/8",
+        "holeDiaH": "3/4"
+    },
+    "3/4": {
+        "maxLoad650": 3230,
+        "maxLoad750": 2530,
+        "stockSize": "4 x 4 x 3/8",
+        "holeDiaH": "7/8"
+    },
+    "7/8": {
+        "maxLoad650": 4480,
+        "maxLoad750": 3508,
+        "stockSize": "4 x 4 x 1/2",
+        "holeDiaH": "1"
+    },
+    "1": {
+        "maxLoad650": 5900,
+        "maxLoad750": 4620,
+        "stockSize": "4 x 4 x 1/2",
+        "holeDiaH": "1 1/4"
+    },
+    "1 1/4": {
+        "maxLoad650": 9500,
+        "maxLoad750": 7440,
+        "stockSize": "5 x 5 x 1/2",
+        "holeDiaH": "1 1/2"
+    },
+    "1 1/2": {
+        "maxLoad650": 13800,
+        "maxLoad750": 10807,
+        "stockSize": "5 x 5 x 3/4",
+        "holeDiaH": "1 3/4"
+    },
+    "1 3/4": {
+        "maxLoad650": 18600,
+        "maxLoad750": 14566,
+        "stockSize": "5 x 5 x 3/4",
+        "holeDiaH": "2"
+    },
+    "2": {
+        "maxLoad650": 24600,
+        "maxLoad750": 19265,
+        "stockSize": "5 x 5 x 3/4",
+        "holeDiaH": "2 1/4"
+    },
+    "2 1/4": {
+        "maxLoad650": 32300,
+        "maxLoad750": 25295,
+        "stockSize": "6 x 6 x 3/4",
+        "holeDiaH": "2 1/2"
+    },
+    "2 1/2": {
+        "maxLoad650": 39800,
+        "maxLoad750": 31169,
+        "stockSize": "6 x 6 x 3/4",
+        "holeDiaH": "2 3/4"
+    },
+    "2 3/4": {
+        "maxLoad650": 49400,
+        "maxLoad750": 38687,
+        "stockSize": "6 x 6 x 3/4",
+        "holeDiaH": "3"
+    },
+    "3": {
+        "maxLoad650": 60100,
+        "maxLoad750": 47066,
+        "stockSize": "6 x 6 x 3/4",
+        "holeDiaH": "3 1/4"
+    },
+    "3 1/4": {
+        "maxLoad650": 71900,
+        "maxLoad750": 56307,
+        "stockSize": "6 x 6 x 3/4",
+        "holeDiaH": "3 1/2"
+    },
+    "3 1/2": {
+        "maxLoad650": 84700,
+        "maxLoad750": 66331,
+        "stockSize": "7 x 7 x 3/4",
+        "holeDiaH": "3 3/4"
+    },
+    "3 3/4": {
+        "maxLoad650": 98500,
+        "maxLoad750": 77139,
+        "stockSize": "7 x 7 x 3/4",
+        "holeDiaH": "4"
+    }
+};
+        const fig157Data =
+        {
+    "3/8": {
+        "maxLoad": 730,
+        "B": "1 1/4",
+        "C": "2 1/16",
+        "rodTakeOutE": "1 1/4",
+        "G": "1/2",
+        "H": "1/2",
+        "K": "9/16"
+    },
+    "1/2": {
+        "maxLoad": 1350,
+        "B": "1 3/8",
+        "C": "2 5/16",
+        "rodTakeOutE": "1 3/8",
+        "G": "5/8",
+        "H": "1/2",
+        "K": "11/16"
+    },
+    "5/8": {
+        "maxLoad": 1550,
+        "B": "1 1/2",
+        "C": "2 7/16",
+        "rodTakeOutE": "1 7/16",
+        "G": "5/8",
+        "H": "1/2",
+        "K": "3/4"
+    },
+    "3/4": {
+        "maxLoad": 2100,
+        "B": "1 3/4",
+        "C": "2 7/8",
+        "rodTakeOutE": "1 11/16",
+        "G": "5/8",
+        "H": "1/2",
+        "K": "7/8"
+    },
+    "7/8": {
+        "maxLoad": 2350,
+        "B": "1 7/8",
+        "C": "2",
+        "rodTakeOutE": "1 3/4",
+        "G": "3/4",
+        "H": "9/16",
+        "K": "7/8"
+    }
+};
+        const fig218Data = {
+            "maxRodSizeA": "7/8",
+            "maxLoad": 1365,
+            "boltDia": "7/16",
+            "rodTakeOut,E": {
+                "2 3/8": "3 1/2",
+                "3": "3 7/16",
+                "4": "3 5/16",
+                "5": "2 15/16",
+                "6": "2 9/16",
+                "7": "1 7/8"
+            }
+        };
+        const fig181Data =  {
+
+    "2 1/2": {
+        "maxOD": 3,
+        "maxLoad": 225,
+        "rodSizeA": "1/2",
+        "B": "5 3/4",
+        "C": "3 1/4",
+        "D": "1 15/16",
+        "rodTakeOutE": "2 7/8",
+        "H": "1 11/16"
+    },
+    "3": {
+        "maxOD": "3 5/8",
+        "maxLoad": 310,
+        "rodSizeA": "1/2",
+        "B": "6 3/8",
+        "C": "3 7/8",
+        "D": "2 1/4",
+        "rodTakeOutE": "3 1/8",
+        "H": "1 5/8"
+    },
+    "3 1/2": {
+        "maxOD": "4 1/8",
+        "maxLoad": 390,
+        "rodSizeA": "1/2",
+        "B": "7",
+        "C": "4 3/8",
+        "D": "2 9/16",
+        "rodTakeOutE": "3 1/2",
+        "H": "1 11/16"
+    },
+    "4": {
+        "maxOD": "4 11/16",
+        "maxLoad": 475,
+        "rodSizeA": "5/8",
+        "B": "7 9/16",
+        "C": "4 15/16",
+        "D": "2 13/16",
+        "rodTakeOutE": "3 5/8",
+        "H": "1 5/8"
+    },
+    "5": {
+        "maxOD": "5 3/4",
+        "maxLoad": 685,
+        "rodSizeA": "5/8",
+        "B": "9 1/8",
+        "C": "6",
+        "D": "3 7/16",
+        "rodTakeOutE": "4 1/2",
+        "H": "1 15/16"
+    },
+    "6": {
+        "maxOD": "6 7/8",
+        "maxLoad": 780,
+        "rodSizeA": "3/4",
+        "B": "10 5/16",
+        "C": "7 1/8",
+        "D": "4",
+        "rodTakeOutE": "5",
+        "H": "1 7/8"
+    },
+    "8": {
+        "maxOD": "9",
+        "maxLoad": 780,
+        "rodSizeA": "3/4",
+        "B": "12 11/16",
+        "C": "9 1/4",
+        "D": "5 1/8",
+        "rodTakeOutE": "6 1/8",
+        "H": "2"
+    },
+    "10": {
+        "maxOD": "11",
+        "maxLoad": 965,
+        "rodSizeA": "7/8",
+        "B": "15 1/16",
+        "C": "11 1/4",
+        "D": "6 3/8",
+        "rodTakeOutE": "7 1/4",
+        "H": "2 1/16"
+    },
+    "12": {
+        "maxOD": "13",
+        "maxLoad": 1200,
+        "rodSizeA": "7/8",
+        "B": "17 7/16",
+        "C": "13 1/4",
+        "D": "7 7/16",
+        "rodTakeOutE": "8 3/8",
+        "H": "2 1/4"
+    },
+    "14": {
+        "maxOD": "14 1/4",
+        "maxLoad": 1200,
+        "rodSizeA": "1",
+        "B": "18 7/8",
+        "C": "14 1/2",
+        "D": "8 3/8",
+        "rodTakeOutE": "8 3/4",
+        "H": "2"
+    },
+    "16": {
+        "maxOD": "16 1/4",
+        "maxLoad": 1200,
+        "rodSizeA": "1",
+        "B": "20 13/16",
+        "C": "16 1/2",
+        "D": "9 3/8",
+        "rodTakeOutE": "9 11/16",
+        "H": "1 15/16"
+    },
+    "18": {
+        "maxOD": "18 1/4",
+        "maxLoad": 1400,
+        "rodSizeA": "1",
+        "B": "23 3/4",
+        "C": "18 1/2",
+        "D": "10 7/16",
+        "rodTakeOutE": "11 7/16",
+        "H": "2 13/16"
+    },
+    "20": {
+        "maxOD": "20 1/4",
+        "maxLoad": 1600,
+        "rodSizeA": "1 1/4",
+        "B": "26",
+        "C": "20 1/2",
+        "D": "11 5/8",
+        "rodTakeOutE": "12 1/4",
+        "H": "2 1/2"
+    },
+    "24": {
+        "maxOD": "24 1/4",
+        "maxLoad": 1800,
+        "rodSizeA": "1 1/2",
+        "B": "32 5/16",
+        "C": "24 5/8",
+        "D": "13 15/16",
+        "rodTakeOutE": "15 3/4",
+        "H": "4 3/8"
+    }
+};
+
+           
+       const fig55Data = [
+    {
+        "rodSize": "1/2",
+        "pinOrBoltDia": "5/8",
+        "F": "11/16",
+        "R": "1 1/4",
+        "T": "1/4",
+        "W": "2 1/2",
+        "maxLoad650": 1350,
+        "maxLoad750": 1057,
+        "rodTakeOutH_Short": "1 1/2",
+        "rodTakeOutH_Long": 3
+    },
+    {
+        "rodSize": "5/8",
+        "pinOrBoltDia": "3/4",
+        "F": "13/16",
+        "R": "1 1/4",
+        "T": "1/4",
+        "W": "2 1/2",
+        "maxLoad650": 2160,
+        "maxLoad750": 1692,
+        "rodTakeOutH_Short": "1 1/2",
+        "rodTakeOutH_Long": 3
+    },
+    {
+        "rodSize": "3/4",
+        "pinOrBoltDia": "7/8",
+        "F": "15/16",
+        "R": "1 1/4",
+        "T": "3/8",
+        "W": "2 1/2",
+        "maxLoad650": 3230,
+        "maxLoad750": 2530,
+        "rodTakeOutH_Short": "1 1/2",
+        "rodTakeOutH_Long": "3"
+    },
+    {
+        "rodSize": "7/8",
+        "pinOrBoltDia": "1",
+        "F": "1 1/8",
+        "R": "1 1/4",
+        "T": "3/8",
+        "W": "2 1/2",
+        "maxLoad650": 4480,
+        "maxLoad750": 3508,
+        "rodTakeOutH_Short": "2",
+        "rodTakeOutH_Long": "3"
+    },
+    {
+        "rodSize": "1",
+        "pinOrBoltDia": "1 1/8",
+        "F": "1 1/4",
+        "R": "1 1/2",
+        "T": "1/2",
+        "W": "3",
+        "maxLoad650": 5900,
+        "maxLoad750": 4620,
+        "rodTakeOutH_Short": "2",
+        "rodTakeOutH_Long": "3"
+    },
+    {
+        "rodSize": "1 1/4",
+        "pinOrBoltDia": "1 3/8",
+        "F": "1 1/2",
+        "R": "2",
+        "T": "5/8",
+        "W": "4",
+        "maxLoad650": 9500,
+        "maxLoad750": 7440,
+        "rodTakeOutH_Short": "3",
+        "rodTakeOutH_Long": "4"
+    },
+    {
+        "rodSize": "1 1/2",
+        "pinOrBoltDia": "1 5/8",
+        "F": "1 3/4",
+        "R": "2 1/2",
+        "T": "3/4",
+        "W": "5",
+        "maxLoad650": 13800,
+        "maxLoad750": 10807,
+        "rodTakeOutH_Short": "3",
+        "rodTakeOutH_Long": "4 1/2"
+    },
+    {
+        "rodSize": "1 3/4",
+        "pinOrBoltDia": "1 7/8",
+        "F": "2",
+        "R": "2 1/2",
+        "T": "3/4",
+        "W": "5",
+        "maxLoad650": 18600,
+        "maxLoad750": 14566,
+        "rodTakeOutH_Short": "3",
+        "rodTakeOutH_Long": "4 1/2"
+    },
+    {
+        "rodSize": "2",
+        "pinOrBoltDia": "2 1/4",
+        "F": "2 3/8",
+        "R": "3",
+        "T": "3/4",
+        "W": "6",
+        "maxLoad650": 24600,
+        "maxLoad750": 19265,
+        "rodTakeOutH_Short": "4",
+        "rodTakeOutH_Long":  "4 1/2"
+    },
+    {
+        "rodSize": "2 1/4",
+        "pinOrBoltDia": "2 1/2",
+        "F": "2 5/8",
+        "R": "3",
+        "T": "3/4",
+        "W": "6",
+        "maxLoad650": 32300,
+        "maxLoad750": 25295,
+        "rodTakeOutH_Short": "4 1/2",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "2 1/2",
+        "pinOrBoltDia": "2 3/4",
+        "F": "2 7/8",
+        "R": "4",
+        "T": "1",
+        "W": "8",
+        "maxLoad650": 39800,
+        "maxLoad750": 31169,
+        "rodTakeOutH_Short": "4 1/2",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "2 3/4",
+        "pinOrBoltDia": "3",
+        "F": "3 1/8",
+        "R": "4",
+        "T": "1",
+        "W": "8",
+        "maxLoad650": 49400,
+        "maxLoad750": 38687,
+        "rodTakeOutH_Short": "4 1/2",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "3",
+        "pinOrBoltDia": "3 1/4",
+        "F": "3 3/8",
+        "R": "4",
+        "T": "1",
+        "W": "8",
+        "maxLoad650": 60100,
+        "maxLoad750": 47066,
+        "rodTakeOutH_Short": "5",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "3 1/4",
+        "pinOrBoltDia": "3 1/2",
+        "F": "3 5/8",
+        "R": "4 1/2",
+        "T": "1 ",
+        "W": "9",
+        "maxLoad650": 71900,
+        "maxLoad750": 56307,
+        "rodTakeOutH_Short": "5",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "3 1/2",
+        "pinOrBoltDia": "3 3/4",
+        "F": "3 7/8",
+        "R": "4 1/2",
+        "T": "1 1/2",
+        "W": "9",
+        "maxLoad650": 84700,
+        "maxLoad750": 66331,
+        "rodTakeOutH_Short": "6",
+        "rodTakeOutH_Long": null
+    },
+    {
+        "rodSize": "3 3/4",
+        "pinOrBoltDia": "4",
+        "F": "4 1/8",
+        "R": "4 1/2",
+        "T": "1 3/4",
+        "W": "9",
+        "maxLoad650": 98500,
+        "maxLoad750": 77139,
+        "rodTakeOutH_Short": "6",
+        "rodTakeOutH_Long": null
+    }
+];
+
+    // --- NEW: Strut Support Data Structures ---
+        const c211LoadDimensionsData = [
+            {
+                "size": "A", "load": 650, "rodEnd": "3/4", "extPiece": "1",
+                "fig211_A": "1", "fig211_D": null, "fig211_D1": "1 1/4", "fig211_N": "1/4", "fig211_R": "5/8", "fig211_S": "5/8", "fig211_T": "0.374-0.372", "fig211_CC_Max": "60", "fig211_CC_Min": "16 1/2", "fig211_W_Max": "53 1/8", "fig211_W_Min": "9 5/8", "fig211_F": "3 7/16", "fig211_WeldZ": null,
+                "fig640_CC_Max": "60", "fig640_CC_Min": "12 1/8", "fig640_F": "2 1/16"
+            },
+            {
+                "size": "B", "load": 1500, "rodEnd": "1", "extPiece": "1 1/2",
+                "fig211_A": null, "fig211_D": null, "fig211_D1": "2 3/8", "fig211_N": "5/8", "fig211_R": "1 1/8", "fig211_S": "1 3/8", "fig211_T": "0.749-0.747", "fig211_CC_Max": "108", "fig211_CC_Min": "19", "fig211_W_Max": "99 1/8", "fig211_W_Min": "10 1/8", "fig211_F": "4 7/16", "fig211_WeldZ": "3/16",
+                "fig640_CC_Max": null, "fig640_CC_Min": "14 7/16", "fig640_F": "3 1/16"
+            },
+            {
+                "size": "C", "load": 4500, "rodEnd": "1", "extPiece": "2",
+                "fig211_A": "2 1/2", "fig211_D": "2", "fig211_D1": "2 3/8", "fig211_N": "5/8", "fig211_R": "1 1/8", "fig211_S": "1 3/8", "fig211_T": "0.749-0.747", "fig211_CC_Max": "108", "fig211_CC_Min": "19", "fig211_W_Max": "111 1/8", "fig211_W_Min": "10 1/8", "fig211_F": "4 7/16", "fig211_WeldZ": "3/16",
+                "fig640_CC_Max": null, "fig640_CC_Min": "14 7/16", "fig640_F": "3 1/16"
+            },
+            {
+                "size": "1", "load": 8000, "rodEnd": "1 1/4", "extPiece": "2 1/2",
+                "fig211_A": "2 1/2", "fig211_D": "2", "fig211_D1": "2 7/8", "fig211_N": "3/4", "fig211_R": "1 1/2", "fig211_S": "1 1/2", "fig211_T": "0.999-0.997", "fig211_CC_Max": "110", "fig211_CC_Min": "21", "fig211_W_Max": "110 3/8", "fig211_W_Min": null, "fig211_F": "4 7/8", "fig211_WeldZ": null,
+                "fig640_CC_Max": null, "fig640_CC_Min": "16 1/2", "fig640_F": "4 1/8"
+            },
+            {
+                "size": "2", "load": 11630, "rodEnd": "1 1/2", "extPiece": "2 1/2",
+                "fig211_A": "2 1/2", "fig211_D": "2", "fig211_D1": "2 7/8", "fig211_N": "3/4", "fig211_R": "1 1/2", "fig211_S": "1 1/2", "fig211_T": "0.999-0.997", "fig211_CC_Max": "110", "fig211_CC_Min": "21 1/8", "fig211_W_Max": "110", "fig211_W_Min": "11 3/8", "fig211_F": "5", "fig211_WeldZ": "5/16",
+                "fig640_CC_Max": null, "fig640_CC_Min": "16 7/8", "fig640_F": "4 1/4"
+            },
+            {
+                "size": "3", "load": 15700, "rodEnd": "1 3/4", "extPiece": "3",
+                "fig211_A": "3", "fig211_D": "3", "fig211_D1": "3 3/16", "fig211_N": "3/4", "fig211_R": "2", "fig211_S": "1 11/16", "fig211_T": "1.249-1.247", "fig211_CC_Max": "120", "fig211_CC_Min": "22 7/8", "fig211_W_Max": "108 1/2", "fig211_W_Min": null, "fig211_F": "5 3/4", "fig211_WeldZ": null,
+                "fig640_CC_Max": null, "fig640_CC_Min": "18 3/8", "fig640_F": "5"
+            },
+            {
+                "size": "4", "load": 20700, "rodEnd": "2", "extPiece": "3",
+                "fig211_A": "3", "fig211_D": "3", "fig211_D1": "3 3/16", "fig211_N": "3/4", "fig211_R": "2", "fig211_S": "1 11/16", "fig211_T": "1.249-1.247", "fig211_CC_Max": "120", "fig211_CC_Min": "25", "fig211_W_Max": "108", "fig211_W_Min": null, "fig211_F": "6", "fig211_WeldZ": null,
+                "fig640_CC_Max": null, "fig640_CC_Min": "20 1/2", "fig640_F": "5 1/4"
+            },
+            {
+                "size": "5", "load": 27200, "rodEnd": "2 1/4", "extPiece": "4",
+                "fig211_A": "4", "fig211_D": "6 1/8", "fig211_D1": "4 1/4", "fig211_N": "1 1/4", "fig211_R": "2 1/2", "fig211_S": "2", "fig211_T": "1.499-1.497", "fig211_CC_Max": "120", "fig211_CC_Min": "26 1/2", "fig211_W_Max": "106 1/2", "fig211_W_Min": "13", "fig211_F": "6 3/4", "fig211_WeldZ": "3/8",
+                "fig640_CC_Max": null, "fig640_CC_Min": "22", "fig640_F": "6"
+            },
+            {
+                "size": "6", "load": 33500, "rodEnd": "2 1/2", "extPiece": "4",
+                "fig211_A": "5", "fig211_D": "7 7/8", "fig211_D1": "5 3/8", "fig211_N": "1 3/4", "fig211_R": "3", "fig211_S": "2 1/2", "fig211_T": "1.749-1.747", "fig211_CC_Max": "120", "fig211_CC_Min": "28 1/4", "fig211_W_Max": "104 3/4", "fig211_W_Min": null, "fig211_F": "7 5/8", "fig211_WeldZ": null,
+                "fig640_CC_Max": null, "fig640_CC_Min": "23 3/4", "fig640_F": "6 7/8"
+            },
+            {
+                "size": "7", "load": 68200, "rodEnd": "3", "extPiece": "5",
+                "fig211_A": "5 3/4", "fig211_D": "9 1/8", "fig211_D1": "6 1/4", "fig211_N": "2", "fig211_R": "3 1/2", "fig211_S": "3", "fig211_T": "1.999-1.997", "fig211_CC_Max": "120", "fig211_CC_Min": "32 1/2", "fig211_W_Max": "102 1/2", "fig211_W_Min": "15", "fig211_F": "8 3/4", "fig211_WeldZ": "5/8",
+                "fig640_CC_Max": null, "fig640_CC_Min": "28", "fig640_F": "8"
+            },
+            {
+                "size": "8", "load": 120000, "rodEnd": "4", "extPiece": "6",
+                "fig211_A": "7 1/4", "fig211_D": "14", "fig211_D1": "8 3/4", "fig211_N": "2 1/4", "fig211_R": "4 3/4", "fig211_S": "3 1/2", "fig211_T": "2.499-2.497", "fig211_CC_Max": "120", "fig211_CC_Min": "39 1/4", "fig211_W_Max": "98", "fig211_W_Min": "17 1/4", "fig211_F": "11", "fig211_WeldZ": "3/4",
+                "fig640_CC_Max": null, "fig640_CC_Min": "34 3/4", "fig640_F": "10 1/4"
+            }
+        ];
+
+        const c211ETakeOutData = {
+            "650F": {
+                "3/4": {"A": "2 7/16", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1": {"A": "2 9/16", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1 1/4": {"A": "2 11/16", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1 1/2": {"A": "4 1/8", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "2": {"A": "5 1/8", "B&C": "6 3/8", "1&2": "6 3/8", "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "2 1/2": {"A": "5 3/8", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "3": {"A": "5 15/16", "B&C": "7", "1&2": "7", "3": "8 1/8", "4": null, "5": null, "6": null, "7": null, "8": null},
+                "3 1/2": {"A": "6 3/16", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "4": {"A": "6 1/2", "B&C": "7 1/4", "1&2": "7 1/4", "3": "8 3/8", "4": null, "5": "10", "6": null, "7": null, "8": null},
+                "5": {"A": "7 3/4", "B&C": "7 3/4", "1&2": "7 3/4", "3": "9 1/8", "4": "9 1/8", "5": null, "6": null, "7": null, "8": null},
+                "6": {"A": "8 3/8", "B&C": "8 3/8", "1&2": "8 3/8", "3": "10", "4": "10", "5": null, "6": "11 7/8", "7": null, "8": null},
+                "8": {"A": "9 3/8", "B&C": "9 3/8", "1&2": "9 3/8", "3": "11 1/4", "4": "11 1/4", "5": "11 1/4", "6": "12 5/8", "7": null, "8": null},
+                "10": {"A": "10 1/2", "B&C": "10 1/2", "1&2": "10 1/2", "3": "12 3/4", "4": "12 3/4", "5": "12 3/4", "6": "13 7/8", "7": null, "8": null},
+                "12": {"A": null, "B&C": "11 7/8", "1&2": "11 7/8", "3": "13 7/8", "4": "13 7/8", "5": "13 7/8", "6": "15 3/8", "7": null, "8": null},
+                "14": {"A": null, "B&C": "12 5/8", "1&2": "12 5/8", "3": "14 1/2", "4": "14 1/2", "5": "14 1/2", "6": "16", "7": null, "8": null},
+                "16": {"A": null, "B&C": "13 5/8", "1&2": "13 5/8", "3": "15 1/4", "4": "15 1/4", "5": "15 1/4", "6": "17 1/8", "7": null, "8": null},
+                "18": {"A": null, "B&C": "14 5/8", "1&2": "14 5/8", "3": "16 1/2", "4": "16 1/2", "5": "16 1/2", "6": "18 1/4", "7": null, "8": null},
+                "20": {"A": null, "B&C": "15 3/4", "1&2": "15 3/4", "3": "17 3/4", "4": "17 3/4", "5": "17 3/4", "6": "19 1/4", "7": null, "8": null},
+                "24": {"A": null, "B&C": "18 1/8", "1&2": "18 1/8", "3": "19 7/8", "4": "19 7/8", "5": "19 7/8", "6": "21 3/4", "7": null, "8": null},
+                "30": {"A": null, "B&C": "21 1/4", "1&2": "21 1/4", "3": "23", "4": "23", "5": "25", "6": "25", "7": null, "8": null},
+                "36": {"A": null, "B&C": "24", "1&2": "24", "3": "26 1/2", "4": "26 1/2", "5": "28 1/2", "6": "28 1/2", "7": null, "8": null}
+            },
+            "1075F": {
+                "3/4": {"A": "8", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1": {"A": "8 1/2", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1 1/4": {"A": "8 1/4", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "1 1/2": {"A": "8 3/8", "B&C": null, "1&2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "2": {"A": "8 5/8", "B&C": "9 3/8", "1&2": "9 3/8", "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "2 1/2": {"A": "8 7/8", "B&C": "9 3/8", "1&2": "9 3/8", "3": null, "4": null, "5": null, "6": null, "7": null, "8": null},
+                "3": {"A": "9 1/8", "B&C": "9 3/8", "1&2": "9 3/8", "3": "9 5/8", "4": null, "5": null, "6": null, "7": null, "8": null},
+                "3 1/2": {"A": "9 3/8", "B&C": "9 5/8", "1&2": "9 5/8", "3": "9 5/8", "4": null, "5": null, "6": null, "7": null, "8": null},
+                "4": {"A": "9 5/8", "B&C": "10 1/4", "1&2": "10 1/4", "3": "10 1/4", "4": "10 1/4", "5": null, "6": null, "7": null, "8": null},
+                "5": {"A": "10 1/4", "B&C": "10 1/4", "1&2": "10 1/4", "3": "10 1/4", "4": "10 1/4", "5": "11 1/8", "6": "12", "7": null, "8": null},
+                "6": {"A": "10 3/4", "B&C": "10 3/4", "1&2": "10 3/4", "3": "11 3/4", "4": "11 3/4", "5": "12 3/8", "6": "13 1/8", "7": "13 1/8", "8": null},
+                "8": {"A": "11 3/4", "B&C": "11 3/4", "1&2": "11 3/4", "3": "12 3/4", "4": "12 3/4", "5": "13 1/4", "6": "14 1/4", "7": "14 1/4", "8": null},
+                "10": {"A": "12 3/4", "B&C": "12 3/4", "1&2": "12 3/4", "3": "13 3/4", "4": "13 3/4", "5": "14 3/4", "6": "15 7/8", "7": "16", "8": null},
+                "12": {"A": null, "B&C": "13 7/8", "1&2": "13 7/8", "3": "14 3/4", "4": "14 3/4", "5": "15 3/4", "6": "17 1/4", "7": "17 1/4", "8": null},
+                "14": {"A": null, "B&C": "14 3/8", "1&2": "14 3/8", "3": "15 3/8", "4": "15 3/8", "5": "16 7/8", "6": "18", "7": "18 1/2", "8": "19"},
+                "16": {"A": null, "B&C": "15 3/8", "1&2": "15 3/8", "3": "16 1/2", "4": "16 1/2", "5": "18", "6": "19 1/2", "7": "19 5/8", "8": "20 1/4"},
+                "18": {"A": null, "B&C": "16 3/8", "1&2": "16 3/8", "3": "17 3/8", "4": "17 3/8", "5": "19", "6": "20 7/8", "7": "21 1/2", "8": "22 1/2"},
+                "20": {"A": null, "B&C": "17 3/8", "1&2": "17 3/8", "3": "19", "4": "19", "5": "20 1/2", "6": "22 1/2", "7": "23", "8": "24"},
+                "24": {"A": null, "B&C": "20 3/8", "1&2": "20 3/8", "3": "21 1/2", "4": "21 1/2", "5": "22 1/2", "6": "23", "7": "24", "8": "24"},
+                "30": {"A": null, "B&C": "23 1/2", "1&2": "23 1/2", "3": "24 1/2", "4": "24 1/2", "5": "26", "6": "26", "7": "28", "8": "28"},
+                "36": {"A": null, "B&C": "26 1/2", "1&2": "26 1/2", "3": "28 1/2", "4": "28 1/2", "5": "30 1/2", "6": "30 1/2", "7": "31 1/4", "8": "31 1/4"}
+            }
+        };
+
+        const c222LoadDimensionsData = [
+            {
+                "assemblySize": "A", "load": 650, "rodEnd": "3/4",
+                "fig222_A": "1", "fig222_D": "2", "fig222_D1": "1 1/4", "fig222_N": "1/4", "fig222_R": "5/8", "fig222_S": "5/8", "fig222_T_Nom": "3/8", "fig222_B": null,
+                "configs": [
+                    {"name": "A-1", "CC_Max": "6 5/8", "CC_Min": "5 5/8", "F_Max": "2 1/8", "F_Min": "1 1/8", "W": "2 1/2"},
+                    {"name": "A-2", "CC_Max": "8 1/2", "CC_Min": "6 1/2", "F_Max": "4 1/4", "F_Min": "2 1/4", "W": "3 1/8"},
+                    {"name": "A-3", "CC_Max": "13 1/4", "CC_Min": "8 1/2", "F_Max": "6 1/4", "F_Min": "4 1/2", "W": "5 1/8"}
+                ]
+            },
+            {
+                "assemblySize": "B & C", "load": 4500, "rodEnd": "1",
+                "fig222_A": "2 1/2", "fig222_D": "2", "fig222_D1": "2 3/8", "fig222_N": "5/8", "fig222_R": "1 1/8", "fig222_S": "1 3/8", "fig222_T_Nom": "3/4", "fig222_B": "2 1/2",
+                "configs": [
+                    {"name": "BC-1", "CC_Max": "6 1/2", "CC_Min": "6", "F_Max": "2 1/2", "F_Min": "1 1/2", "W": "2 1/2"},
+                    {"name": "BC-2", "CC_Max": "7 1/4", "CC_Min": "6 5/8", "F_Max": "3 1/2", "F_Min": "2", "W": "2 1/2"},
+                    {"name": "BC-3", "CC_Max": "8 1/8", "CC_Min": "7 7/16", "F_Max": "3 7/8", "F_Min": "2 1/2", "W": "3 1/8"},
+                    {"name": "BC-4", "CC_Max": "10 5/8", "CC_Min": "8 1/8", "F_Max": "4 5/8", "F_Min": "3 1/2", "W": "3 7/8"},
+                    {"name": "BC-5", "CC_Max": "15 5/16", "CC_Min": "10 5/8", "F_Max": "7 1/16", "F_Min": "4 1/2", "W": "6 1/8"},
+                    {"name": "BC-6", "CC_Max": "19 9/16", "CC_Min": "15 5/16", "F_Max": "9 1/4", "F_Min": "5 5/8", "W": "8 5/8"}
+                ]
+            },
+            {
+                "assemblySize": "1", "load": 8000, "rodEnd": "1 1/4",
+                "fig222_A": "2 1/2", "fig222_D": "2", "fig222_D1": "2 7/8", "fig222_N": "3/4", "fig222_R": "1 1/2", "fig222_S": "1 1/2", "fig222_T_Nom": "1", "fig222_B": "2 1/4",
+                "configs": [
+                    {"name": "1-1", "CC_Max": "8 7/8", "CC_Min": "8", "F_Max": "3 1/2", "F_Min": "2 1/2", "W": "2 1/2"},
+                    {"name": "1-2", "CC_Max": "10 5/8", "CC_Min": "8 7/8", "F_Max": "4 1/2", "F_Min": "2 7/8", "W": "3 1/8"},
+                    {"name": "1-3", "CC_Max": "11 7/8", "CC_Min": "10 1/4", "F_Max": "4 1/4", "F_Min": "3 1/8", "W": "4 1/8"},
+                    {"name": "1-4", "CC_Max": "15 5/8", "CC_Min": "11 7/8", "F_Max": "6 7/8", "F_Min": "3 3/8", "W": "6 1/8"},
+                    {"name": "1-5", "CC_Max": "21 1/2", "CC_Min": "15 5/8", "F_Max": "9 1/2", "F_Min": "3 3/8", "W": "9 1/8"}
+                ]
+            }
+        ];
+
+        const c222ETakeOutData = {
+            "650F": { // Note: "E" Dimensions are for carbon steel clamps only, with maximum insulation of 4" and temperature of 650°.
+                "3/4": {"A": "2 7/16", "B&C": null, "1": null},
+                "1": {"A": "2 9/16", "B&C": null, "1": null},
+                "1 1/4": {"A": "2 11/16", "B&C": null, "1": null},
+                "1 1/2": {"A": "4 1/8", "B&C": null, "1": null},
+                "2": {"A": "5 1/8", "B&C": "6 3/8", "1": "6 3/8"},
+                "2 1/2": {"A": "5 3/8", "B&C": null, "1": null},
+                "3": {"A": "5 15/16", "B&C": "7", "1": "7"},
+                "3 1/2": {"A": "6 3/16", "B&C": null, "1": null},
+                "4": {"A": "6 1/2", "B&C": "7 1/4", "1": "7 1/4"},
+                "5": {"A": "7 3/4", "B&C": "7 3/4", "1": "7 3/4"},
+                "6": {"A": "8 3/8", "B&C": "8 3/8", "1": "8 3/8"},
+                "8": {"A": "9 3/8", "B&C": "9 3/8", "1": "9 3/8"},
+                "10": {"A": "10 1/2", "B&C": "10 1/2", "1": "10 1/2"},
+                "12": {"A": null, "B&C": "11 7/8", "1": "11 7/8"},
+                "14": {"A": null, "B&C": "12 5/8", "1": "12 5/8"},
+                "16": {"A": null, "B&C": "13 5/8", "1": "13 5/8"},
+                "18": {"A": null, "B&C": "14 5/8", "1": "14 5/8"},
+                "20": {"A": null, "B&C": "15 3/4", "1": "15 3/4"},
+                "24": {"A": null, "B&C": "18 1/8", "1": "18 1/8"},
+                "30": {"A": null, "B&C": "21 1/4", "1": "21 1/4"},
+                "36": {"A": null, "B&C": "24", "1": "24"}
+            }
+        };
+
+        // --- MAPPING for generating tables ---
+        const specMaps = {
+            fig55: { "Selected Rod Size A": "rodSize", "Pin or Bolt Size": "pinOrBoltDia", "F": "F", "R": "R", "W": "W", "T": "T", "Rod Take Out - H (Short)": "rodTakeOutH_Short", "Rod Take Out - H (Long)": "rodTakeOutH_Long" },
+            fig60: { "Selected Rod Size": "rodSize", "Stock Size C x C x D": "stockSize", "Hole Dia. H": "holeDiaH" },
+            fig65: { "Pipe Size": "pipeSize", "Rod Size A": "rodSizeA", "B": "B", "C": "C", "Rod Takeout E": "rodTakeOutE", "Adjustment F": "adjustmentF", "G Width Lower": "GwidthLower" },
+            fig66: { "Rod Size A": "rodSize", "Pin or Bolt Size": "pinOrBoltSize", "Rod Take Out E": "E", "Rod Take Out E'": "E_prime", "B": "B", "H": "H", "R": "R", "S": "S", "T": "T" },
+            fig69: { "Pipe/Tube Size": "pipeSize", "Rod Size A": "rodSizeA", "B": "B", "C": "C", "F": "F", "Width G": "Gwidth" },
+            fig93: { "Rod Size": "rodSize", "C": "C", "D": "D", "E": "E", "F": "F", "G": "G", "H": "H" },
+            fig137: { "Pipe Size": "pipeSize", "Rod Size A": "rodSizeA", "B": "B", "C": "C", "D": "D", "E": "E", "F": "F" },
+            fig140: { "Rod Size A": "rodSize", "Std. Rod Thread Length D": "stdRodLengthD" },
+            fig146: { "Selected Rod Size A": "rodSize" },
+            fig157: { "Rod Size A": "rodSize", "B": "B", "C": "C", "Rod Takeout E": "rodTakeOutE", "G": "G", "H": "H", "K": "K" },
+            fig167: { "Insulation O.D.": "insulationOD", "Length L": "L" },
+            fig181: { "Pipe Size": "pipeSize", "Rod Size A": "rodSizeA", "B": "B", "C": "C", "D": "D", "Rod Takeout E": "rodTakeOutE", "H": "H" },
+            fig212: { "Pipe Size A": "pipeSize", "B": "B", "C": "C", "D": "D", "Rod Take Out E": "E", "H": "H", "G (Width)": "G", "F": "F" },
+            fig216: { "Pipe Size A": "pipeSize", "B": "B", "C": "C", "D": "D", "Rod Take Out E": "E", "H": "H", "G (Width)": "G", "F": "F" },
+            fig218: { "Max Rod Size A": "maxRodSizeA", "Bolt Dia.": "boltDia" },
+            fig260: { "Pipe Size": "pipeSize", "Rod Size A": "rodSizeA", "B": "B", "C": "C", "Rod Takeout E": "rodTakeOutE", "Adjust F": "adjustF", "G": "G", "H": "HwidthLower" },
+            fig290: { "Selected Rod Size A": "rodSize", "B": "B", "C": "C", "D": "D", "E": "E", "F": "F", "G": "G", "H": "H", "Eye Nut Number": "eyeNutNumber" },
+            fig292: { "Selected Rod Size A": "maxRodSizeA", "Dimension B": "B", "Jaw and Nut Size": "jawAndEyeNutSize" },
+            fig295: { "Pipe Size A": "pipeSize", "B": "B", "C": "C", "D": "D", "Rod Takeout E": "rodTakeOutE", "F": "F", "G (Width)": "Gwidth", "H": "H" },
+            fig299: { "Selected Rod size A": "rodSize", "Rod Take Out B": "rodTakeOutB", "D": "D", "N": "N", "Pin Dia P": "pinDiaP", "T": "T", "W (Width)": "W", "Grip": "Grip", "Clevis No.": "clevisNo" },
+            fig40: { "Pipe Size": "pipeSize", "C-C": "cc", "E Max": "E", "F Max":"Fmax","G Max": "Gmax", "S": "s", "A (CS)": "aCS", "A (Alloy)": "aAlloy", "B Max": "bMax" },
+            fig53SD: { "Pipe Size": "pipeSize", "Rod Size A": "rodSizeA", "Rod Takeout C": "cRodTakeOut", "T": "T", "D": "D", "R": "R", "Max Dia H": "hMaxDia" }
+        };
+
+          // --- NEW: Strut Spec Maps (add these inside the existing specMaps object) ---
+        const strutSpecMaps = {
+            c211Fig211: {
+                "Size": "size", "Load (LBS)": "load", "Rod End": "rodEnd", "Ext. Piece": "extPiece",
+                "Fig. 211 A": "fig211_A", "Fig. 211 D": "fig211_D", "Fig. 211 D1": "fig211_D1", "Fig. 211 N": "fig211_N",
+                "Fig. 211 R": "fig211_R", "Fig. 211 S": "fig211_S", "Fig. 211 T": "fig211_T",
+                "Fig. 211 C-C Max": "fig211_CC_Max", "Fig. 211 C-C Min": "fig211_CC_Min",
+                "Fig. 211 W Max": "fig211_W_Max", "Fig. 211 W Min": "fig211_W_Min",
+                "Fig. 211 F": "fig211_F", "Fig. 211 Weld Z": "fig211_WeldZ"
+            },
+            c211Fig640: {
+                "Fig. 640 C-C Max": "fig640_CC_Max", "Fig. 640 C-C Min": "fig640_CC_Min", "Fig. 640 F": "fig640_F"
+            },
+            c222Fig222: {
+                "Assembly Size": "assemblySize", "Load (LBS)": "load", "Rod End": "rodEnd",
+                "Fig. 222 A": "fig222_A", "Fig. 222 D": "fig222_D", "Fig. 222 D1": "fig222_D1", "Fig. 222 N": "fig222_N",
+                "Fig. 222 R": "fig222_R", "Fig. 222 S": "fig222_S", "Fig. 222 T Nom": "fig222_T_Nom", "Fig. 222 B": "fig222_B"
+            },
+            c222Config: {
+                "Config Name": "name", "C-C Max": "CC_Max", "C-C Min": "CC_Min", "F Max": "F_Max", "F Min": "F_Min", "W": "W"
+            },
+            eTakeOut: {
+                "E-Take Out Dimension": "dimension"
+            }
+        };
+
+        // Merge strutSpecMaps into the main specMaps object
+        Object.assign(specMaps, strutSpecMaps);
+
+        // --- Helper Functions ---
+        function getLoadColumn(tempF) {
+            return tempF <= 650 ? 'maxLoad650' : 'maxLoad750';
+        }
+
+        function findComponentByLoad(dataArray, load, loadColumnKey) {
+            if (!dataArray || !Array.isArray(dataArray)) return null;
+            return dataArray.find(item => item[loadColumnKey] !== null && item[loadColumnKey] !== undefined && item[loadColumnKey] >= load);
+        }
+        
+        function findGenericComponentByLoad(dataArray, load, key = 'maxLoad') {
+             if (!dataArray || !Array.isArray(dataArray)) return null;
+             return dataArray.find(item => item[key] !== null && item[key] !== undefined && item[key] >= load);
+        }
+
+        function getPipeComponent(dataObject, pipeSize) {
+            if (dataObject && dataObject[pipeSize]) {
+                const componentData = dataObject[pipeSize];
+                // Create a copy and add the 'pipeSize' property for display purposes
+                return { ...componentData, pipeSize: pipeSize };
+            }
+            return null;
+        }
+
+        function generateValidationMessage(componentData, load, loadColumnKey, pipeSize, genericLoadKey = 'maxLoad') {
+            if (!componentData) {
+                return `<p class="invalid-msg">No data for pipe size ${pipeSize}".</p>`;
+            }
+            const maxLoad = componentData[loadColumnKey] !== undefined ? componentData[loadColumnKey] : componentData[genericLoadKey];
+            
+            if (maxLoad === null || maxLoad === undefined) {
+                return `<p class="invalid-msg">No load data available for this temperature.</p>`;
+            }
+            if (load > maxLoad) {
+                return `<p class="invalid-msg">Load of ${load} lbs exceeds max of ${maxLoad} lbs.</p>`;
+            }
+            return `<p class="valid-msg">Suitable for the load.</p>`;
+        }
+        
+        function generateSpecTable(data, specMap, validationMessage = '') {
+            let content = validationMessage;
+            if (!data) {
+                content += 'Component not found for the given requirements.';
+            } else {
+                let tableHtml = '<table style="width:100%; border:none;">';
+                for (const [label, key] of Object.entries(specMap)) {
+                    const value = key.split('.').reduce((o, i) => (o ? o[i] : undefined), data); // Handle nested keys like data.key
+                    tableHtml += `<tr><td style="text-align:left; font-weight:bold;">${label}:</td><td style="text-align:left;">${value !== undefined && value !== null ? value : 'N/A'}</td></tr>`;
+                }
+                tableHtml += '</table>';
+                content += tableHtml;
+            }
+            return `<td>${content}</td>`;
+        }
+
+        function generateComponentColumn(title, imageUrl, data, specMap, validationMessage = '') {
+            let content = `<img src="${imageUrl}" alt="${title}"><div class="section-title">${title}</div>`;
+            return `<td>${content}${generateSpecTable(data, specMap, validationMessage)}</td>`;
+        }
+        
+        function generateRodMessage(selectedRod, userTempF) {
+             let rodMessage;
+             if (!selectedRod) {
+                  rodMessage = (userTempF > 650) ? "Not rated for temps > 650°F." : "Load exceeds max for all rod sizes.";
+             } else {
+                  rodMessage = `Selected Rod size A: ${selectedRod.rodSize}<br><span class="highlight">Both Fig. 146 and Fig. 140 can be considered.</span>`;
+             }
+             return `<td>${rodMessage}</td>`;
+        }
+
+
+            // --- NEW: Helper Functions (add these after your existing helper functions) ---
+
+        function findStrutByLoad(dataArray, load) {
+            if (!dataArray || !Array.isArray(dataArray)) return null;
+            // Find the smallest strut that can handle the load
+            return dataArray.find(item => item.load !== null && item.load !== undefined && item.load >= load);
+        }
+
+        function getNestedProperty(obj, path) {
+            return path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
+        }
+
+        function generateStrutSpecTable(data, specMap, validationMessage = '', prefix = '') {
+            let content = validationMessage;
+            if (!data) {
+                content += 'Component not found for the given requirements.';
+            } else {
+                let tableHtml = '<table style="width:100%; border:none;">';
+                for (const [label, key] of Object.entries(specMap)) {
+                    const value = getNestedProperty(data, key);
+                    tableHtml += `<tr><td style="text-align:left; font-weight:bold;">${label}:</td><td style="text-align:left;">${value !== undefined && value !== null ? value : 'N/A'}</td></tr>`;
+                }
+                tableHtml += '</table>';
+                content += tableHtml;
+            }
+            return `<td>${content}</td>`;
+        }
+
+
+
+
+        
+       function openInNewTab (value) {
+            const userLoadLbs = parseFloat(document.getElementById('load-lbs').value) || 0;
+            const userPipeSizeIn = document.getElementById('pipe-size-in').options[document.getElementById('pipe-size-in').selectedIndex].text;
+            const userTempF = parseFloat(document.getElementById('temperature-f').value) || 0;
+
+            if (userLoadLbs === 0) {
+                alert("Please enter a valid load requirement.");
+                return;
+            }
+
+            if (userTempF > 1075) {
+                alert("WARNING: Temperature exceeds 1075°F. Selections may be invalid as most components are not rated for this temperature.");
+            }
+            
+            const w = window.open("", "_blank");
+            const loadColumnKey = getLoadColumn(userTempF);
+            const tempRating = (userTempF <= 650) ? 650 : (userTempF <= 750 ? 750 : 1075);
+            
+            const imageMap = {
+                "1": "https://drive.google.com/thumbnail?id=1dfembjAegUI7l2D7SrfTXVDQgtrKr52x", "2": "https://drive.google.com/thumbnail?id=1Jg2RUsPZQ4b5wm9NJxnZqY-jI9nLXgWw",
+                "3": "https://drive.google.com/thumbnail?id=11xGANTbjrnNAG1HlFZZX66Xdnfpk6137", "4": "https://drive.google.com/thumbnail?id=18ryhtSlEvHZVBUK6hyHRXs4Bb2ITDlGs",
+                "5": "https://drive.google.com/thumbnail?id=1oZ0xkN-QYqZPk_MKjgEgWsIp59Y6mFc1", "6": "https://drive.google.com/thumbnail?id=1ArOY7-hjAHmBu2B8VivPFbxyQPEiOnLc",
+                "7": "https://drive.google.com/thumbnail?id=1rY4LcJ9y-Yh1wSVBf7c1dtxXO87ee_9P", "8": "https://drive.google.com/thumbnail?id=12njVVgoilzub3Q_oUwtnc-YOrNE6eREQ",
+                "9": "https://drive.google.com/thumbnail?id=1rPYCSXQKp-sQKhR_3DJ_TXi0NAsHTNdK", "10": "https://drive.google.com/thumbnail?id=1BwtSG4ZEh-rXFqTpRGHHL4Z7zqz78cpE",
+                "11": "https://drive.google.com/thumbnail?id=1ElF1BLBqG_VItfcoV0JbooAyAiQkrU8g", "12": "https://drive.google.com/thumbnail?id=11yLr-IOJ2gylKRq-UKF_8d8IMmV0MoGc",
+                "13": "https://drive.google.com/thumbnail?id=1N1QlIiKYilgJRkW-h_wl58jxvwM1TxuS", "14": "https://drive.google.com/thumbnail?id=1TKt-enx4L_cRKB8vSwPjjQ-BNB5G48a_",
+                "15": "https://drive.google.com/thumbnail?id=1ykBOuqpcJ1Caa8aPT7Cr1A6WQgBSItiV", "16": "https://drive.google.com/thumbnail?id=1uYoYCCLx36BgXibFZ_h9kB3tRIIPDS27",
+                "17": "https://drive.google.com/thumbnail?id=1dUo5Nfj7Rp9kliR6Pou0uB4F6JJDojkx", "18": "https://drive.google.com/thumbnail?id=10rutsLHCOiBn3XCen7GEwdPHy-28UnKK",
+                "19": "https://drive.google.com/thumbnail?id=1AxQF-22ZyoVLcJTMK6T9oCWCbWaJwxpz", "20": "https://drive.google.com/thumbnail?id=1i5mg866_CVZ87WwBLKyYRdDxYPD1_tgX",
+                "21": "https://drive.google.com/thumbnail?id=1hArMvuCtiegdLFatl17XwH78UneFDyz4", "22": "https://drive.google.com/thumbnail?id=16zzUxOLw6p6USOVpjWavZ0qiJhHOMQfP",
+                "23": "https://drive.google.com/thumbnail?id=1HKwiYMNOnOD3vCheqRvGSUMgsX2r3fZ6", "24": "https://drive.google.com/thumbnail?id=1vHvvR1L5Sg5-5nrfuCqw2uLQOlF4jCA3",
+                "C211_Opt1": "https://drive.google.com/thumbnail?id=1JXJNB-yMv1CcnvP_rr9lnS0xHqfFpEbp",
+                "C211_Opt2": "https://drive.google.com/thumbnail?id=1J2QFn6Y6b02oxkmSa1RncaEzMf6uBRIJ",
+                "C211_Opt3": "https://drive.google.com/thumbnail?id=1JCmPfP964ENUpojghVWQ2CRdvdDP2M3h",
+                "C222_Opt1": "https://drive.google.com/thumbnail?id=1G06o8rh6KGKyjQNH7ZEJPtLkVSFV5c6D",
+                "C222_Opt2": "https://drive.google.com/thumbnail?id=1i7mEGeOwtgbS3Q95QlO7lT3EmoSClOfC",
+                "C222_Opt3": "https://drive.google.com/thumbnail?id=1HL6iIWEi5fctkxkTin5nulaAr0h7g_5n",
+            };
+
+            const pageTitle = `${value} :: ${userLoadLbs} LBS :: ${userPipeSizeIn}" Pipe :: ${userTempF}°F`;
+            const pageHeader = `
+                <!DOCTYPE html><html><head><title>${pageTitle}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+                    .container { max-width: 95%; margin: auto; }
+                    table { border-collapse: collapse; width: 100%; border-radius: 8px; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 14px; vertical-align: top; }
+                    .header-row td { background-color: #003366; }
+                    .section-title { background-color: #2c3e50; font-weight: bold; color: #ffffff; padding: 8px; border-radius: 4px 4px 0 0;}
+                    img { max-width: 180px; height: auto; border-radius: 4px; display: block; margin: auto; margin-bottom: 10px; }
+                    .highlight { background-color: #fff3cd; padding: 2px 4px; border-radius: 4px; }
+                    .valid-msg { color: #27ae60; font-weight: bold; }
+                    .invalid-msg { color: #e74c3c; font-weight: bold; }
+                    .info-header { text-align: center; color: #2c3e50; margin-bottom: 20px; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                    .info-header h2 { margin: 0; } .info-header p { margin-top: 5px; }
+                    img.enlargeable { cursor: zoom-in; transition: box-shadow 0.2s; }
+                    img.enlargeable:hover { box-shadow: 0 4px 32px rgba(52,152,219,0.3); }
+                    #img-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 9999; }
+                    #modal-img { width: 700px; height: 700px; object-fit: contain; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+                </style>
+                </head><body><div class="container">
+                    <div id="img-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:9999;">
+                        <img id="modal-img" src="" style="max-width:80vw; max-height:80vh; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5);" />
+                    </div>
+                    <div class="info-header">
+                        <h2>Support Assembly Selection Results</h2>
+                        <p><strong>Load:</strong> ${userLoadLbs} LBS | <strong>Pipe Size:</strong> ${userPipeSizeIn}" | <strong>Temp:</strong> ${userTempF}°F (Using ${tempRating}°F Rating)</p>
+                    </div>`;
+
+            const pageFooter = `</div></body></html>`;
+            let pageContent = 'Not Implemented';
+            const selectedRod146 = (userTempF <= 650) ? findComponentByLoad(fig146Data, userLoadLbs, 'maxLoad650') : null;
+            let tableRows = '';
+
+            switch(value) {
+                case "1":
+                case "5": {
+                    const selectedBeam66 = findComponentByLoad(fig66Data, userLoadLbs, loadColumnKey);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData212 = getPipeComponent(fig212Data, userPipeSizeIn);
+                    const clampData216 = getPipeComponent(fig216Data, userPipeSizeIn);
+                    const mainImg = (value === "1") ? imageMap["1"] : imageMap["5"];
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2" style="width: 20%;"><img src="${mainImg}" alt="Drawing" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1VtdZ1VEH9G8zGV9yWT12xM3xUqt6-HSE" alt="Fig 66" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1-56bDt-AP835d6N7fww_Ycjo2gHDkdXP" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=13-kBH-0xRDWWlo0G3Mny-uZKR4cFnNVT" alt="Fig 146"class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1QS-uKIeMfReuAFzFig2HGZ09z25O06TS" alt="Fig 212" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1djpeZkqldsg9IFYr1jdm_GyrVvWQHhho" alt="Fig 216" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 66: Welded Beam</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 212: Medium Pipe Clamp</td>
+                            <td class="section-title">Fig. 216: Heavy Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Selected Rod:</strong> ${selectedBeam66 ? selectedBeam66.rodSize : 'N/A'}</td>
+                            ${generateSpecTable(selectedBeam66, specMaps.fig66)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(clampData212, specMaps.fig212, generateValidationMessage(clampData212, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                            ${generateSpecTable(clampData216, specMaps.fig216, generateValidationMessage(clampData216, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "2": {
+                    const selectedBeam292 = findGenericComponentByLoad(fig292Data, userLoadLbs);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH02" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1sQHPWSlvoPL327zWVho8TCC51FbEFoI1" alt="Fig 292" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1xtQYfZgc0vttQxuxOZ0fKDkk_QhVE6bq" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1z0kkkO3h8LQADYhBd8nhEwdZV19hpxEp" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17M_Tah1cxq74QOB6qgyLHSi0JVmGqtrU" alt="Fig 295" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 292: Beam Clamp</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 295: Double Bolt Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                             <td><strong>Selected Rod:</strong> ${selectedBeam292 ? selectedBeam292.maxRodSizeA : 'N/A'}</td>
+                             ${generateSpecTable(selectedBeam292, specMaps.fig292)}
+                             ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                             ${generateRodMessage(selectedRod146, userTempF)}
+                             ${generateSpecTable(clampData295, specMaps.fig295, generateValidationMessage(clampData295, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "3":
+                case "18":
+                case "19":
+                case "22":
+                case "23":
+                case "24": {
+                    let components = [
+                        {fig: "66", data: findComponentByLoad(fig66Data, userLoadLbs, loadColumnKey), spec: specMaps.fig66, img: "https://drive.google.com/thumbnail?id=1sMR1Zp0DwHzhd_BkXnYNpMHEfLBlY4M1", title: "Fig. 66: Welded Beam"},
+                        {fig: "290", data: findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey), spec: specMaps.fig290, img: "https://drive.google.com/thumbnail?id=11MY41qp7pnao4cJUNG0BBLvaJfaslwK5", title: "Fig. 290: Weldless Eye Nut"},
+                        {fig: "146", data: selectedRod146, spec: specMaps.fig146, img: "https://drive.google.com/thumbnail?id=19Iw0rgiUkI91hL4GfE7mYIaN3A64YPlX", title: "Fig. 146: Threaded Rod"},
+                    ];
+
+                    if (value === "3") {
+                        components.push({fig: "299", data: findComponentByLoad(fig299Data, userLoadLbs, loadColumnKey), spec: specMaps.fig299, img: "https://drive.google.com/thumbnail?id=1lGMNNCq5het8ffdOwS-q4KFQdNcWu8Se", title: "Fig. 299: Forged Steel Clevis"});
+                        components.push({fig: "53SD", data: getPipeComponent(fig53SDData, userPipeSizeIn), spec: specMaps.fig53SD, img: "https://drive.google.com/thumbnail?id=1YipAZfE2Ey98XzA94MEftkA2j-XWz7DZ", title: "Fig. 53-SD: Welding Lug"});
+                    }
+                    if (value === "18" || value === "24") { 
+                        const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                        const clampData295H = getPipeComponent(fig295HData, userPipeSizeIn);
+                        let finalClampData = clampData295;
+                        let title = "Fig. 295: Double Bolt Pipe Clamp";
+                        
+                        if (!finalClampData || userLoadLbs > (finalClampData?.[loadColumnKey] || 0) || parseInt(userPipeSizeIn) > 12) {
+                             finalClampData = clampData295H;
+                             if(finalClampData) finalClampData.pipeSize = userPipeSizeIn; 
+                             title = "Fig. 295H: Heavy Duty Dbl. Bolt Clamp";
+                        }
+                        components.push({fig: "295/H", data: finalClampData, spec: specMaps.fig295, img: "https://drive.google.com/thumbnail?id=1yyxZhJFZYatb_w1MJzAqpYldq1bFgrX_", title: title, validation: generateValidationMessage(finalClampData, userLoadLbs, loadColumnKey, userPipeSizeIn)});
+                    }
+                    if (value === "19") {
+                        const clampData260 = getPipeComponent(fig260Data, userPipeSizeIn);
+                        components.push({fig: "260", data: clampData260, spec: specMaps.fig260, img: "https://drive.google.com/thumbnail?id=1qdrTHoEhaRFPo1myWA5BZ9aXQSNIJy9H", title: "Fig. 260: Adj. Clevis Hanger", validation: generateValidationMessage(clampData260, userLoadLbs, 'maxLoad', userPipeSizeIn)});
+                    }
+                     if (value === "22") {
+                         const clampData216 = getPipeComponent(fig216Data, userPipeSizeIn);
+                         components.push({fig: "216", data: clampData216, spec: specMaps.fig216, img: "https://drive.google.com/thumbnail?id=1djpeZkqldsg9IFYr1jdm_GyrVvWQHhho", title: "Fig. 216: Heavy Pipe Clamp", validation: generateValidationMessage(clampData216, userLoadLbs, loadColumnKey, userPipeSizeIn)});
+                    }
+                     if (value === "23") {
+                        const selectedClevis299 = findComponentByLoad(fig299Data, userLoadLbs, loadColumnKey);
+                        const selectedLug55 = findComponentByLoad(fig55Data, userLoadLbs, loadColumnKey);
+                         components.push({fig: "299", data: selectedClevis299, spec: specMaps.fig299, img: "https://drive.google.com/thumbnail?id=1Rg2wCKrecEffFsfyjx02hopKWAvDTbNA", title: "Fig. 299: Forged Steel Clevis"});
+                         components.push({fig: "55", data: selectedLug55, spec: specMaps.fig55, img: "https://drive.google.com/thumbnail?id=1O8LwFNpKT_TYvRlR-lh6dFkgK-cf47tJ", title: "Fig. 55: Structural Welding Lug"});
+                    }
+                    
+                    let imagesRow = `<td><img src="${imageMap[value]}" alt="SH${value}" class="enlargeable"></td>`;
+                    let titlesRow = '<td></td>'; 
+                    let dataRow = `<td>${value === "24" ? '<strong>Note: Double Rod Assembly</strong>' : ''}</td>`;
+                    
+                    components.forEach(c => {
+                        imagesRow += `<td><img src="${c.img}" alt="${c.title}" class="enlargeable"></td>`;
+                        titlesRow += `<td class="section-title">${c.title}</td>`;
+                        if (c.fig === "146") {
+                            dataRow += generateRodMessage(c.data, userTempF);
+                        } else {
+                            dataRow += generateSpecTable(c.data, c.spec, c.validation || '');
+                        }
+                    });
+                    
+                    tableRows = `<tr>${imagesRow}</tr><tr>${titlesRow}</tr><tr>${dataRow}</tr>`;
+                    break;
+                }
+                
+                // **** START OF NEWLY ADDED LOGIC ****
+                case "4": {
+                    const selectedPlate60 = findComponentByLoad(fig60Data, userLoadLbs, loadColumnKey);
+                    const clampData260 = getPipeComponent(fig260Data, userPipeSizeIn);
+                    
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH04" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1k7Hwy7lfuTcq2XwtNHNvWrtbiATVEEGH" alt="Fig 60" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1C18TNhhvMuxf0eJAy_4Wyt5fui9q5ygJ" alt="Fig 260" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 60: Steel Washer Plate</td>
+                            <td class="section-title">Fig. 260: Adj. Clevis Hanger</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(selectedPlate60, specMaps.fig60)}
+                            ${generateSpecTable(clampData260, specMaps.fig260, generateValidationMessage(clampData260, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                        </tr>`;
+                    break;
+                }
+                case "6":
+                case "15": {
+                     const clamp218Data = (userLoadLbs <= fig218Data.maxLoad) ? fig218Data : null;
+                     const rodTakeOut = clamp218Data && clamp218Data["rodTakeOut,E"] && clamp218Data["rodTakeOut,E"][userPipeSizeIn] ? clamp218Data["rodTakeOut,E"][userPipeSizeIn] : 'N/A';
+                     const selectedExt157 = findGenericComponentByLoad(Object.values(fig157Data), userLoadLbs);
+                     
+                     let components = [
+                        {fig: "218", data: clamp218Data, spec: specMaps.fig218, img: "https://drive.google.com/thumbnail?id=1h3S8WDXA2Ym-HrQ-8DC2pV2blElcddGL", title: "Fig. 218: Beam Clamp", validation: generateValidationMessage(clamp218Data, userLoadLbs, 'maxLoad', userPipeSizeIn)},
+                        {fig: "157", data: selectedExt157, spec: specMaps.fig157, img: "https://drive.google.com/thumbnail?id=1NdrQ1OmmjZ8ctSvzyMip23IUrWyyypx3", title: "Fig. 157: Extension Piece"},
+                        {fig: "146", data: selectedRod146, spec: specMaps.fig146, img: "https://drive.google.com/thumbnail?id=1lun0D7azRICZ6SNbl199g54JRGg4j6L5", title: "Fig. 146: Threaded Rod"},
+                     ];
+
+                    if (value === "6") {
+                        const roll181 = getPipeComponent(fig181Data, userPipeSizeIn);
+                        components.push({fig: "181", data: roll181, spec: specMaps.fig181, img: "https://drive.google.com/thumbnail?id=1tPkkRFcLQzct_sSu8nbxrbY_d1tYvRlw", title: "Fig. 181: Adj. Yoke Pipe Roll", validation: generateValidationMessage(roll181, userLoadLbs, 'maxLoad', userPipeSizeIn)});
+                    } else if (value === "15") {
+                         const ring69 = getPipeComponent(fig69Data, userPipeSizeIn);
+                         components.push({fig: "69", data: ring69, spec: specMaps.fig69, img: "https://drive.google.com/thumbnail?id=1EAKK7hZVAp50V9EpokN_CQveC-gKGQJS", title: "Fig. 69: Adj. Swivel Ring", validation: generateValidationMessage(ring69, userLoadLbs, 'maxLoad', userPipeSizeIn)});
+                    }
+                    
+                    let imagesRow = `<td><img src="${imageMap[value]}" alt="SH${value}" class="enlargeable"></td>`;
+                    let titlesRow = '<td></td>';
+                    let dataRow = `<td></td>`;
+                    
+                    components.forEach(c => {
+                        imagesRow += `<td><img src="${c.img}" alt="${c.title}" class="enlargeable"></td>`;
+                        titlesRow += `<td class="section-title">${c.title}</td>`;
+                        if (c.fig === "146") {
+                            dataRow += generateRodMessage(c.data, userTempF);
+                        } else if(c.fig === "218" && c.data) {
+                            dataRow += generateSpecTable({...c.data, rodTakeOut: rodTakeOut}, {...c.spec, "Rod Takeout E": "rodTakeOut"}, c.validation);
+                        }
+                        else {
+                            dataRow += generateSpecTable(c.data, c.spec, c.validation || '');
+                        }
+                    });
+
+                    tableRows = `<tr>${imagesRow}</tr><tr>${titlesRow}</tr><tr>${dataRow}</tr>`;
+                    break;
+                }
+                case "7": { 
+                    const selectedLug55 = findComponentByLoad(fig55Data, userLoadLbs, loadColumnKey);
+                    const selectedClevis299 = findComponentByLoad(fig299Data, userLoadLbs, loadColumnKey);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData212 = getPipeComponent(fig212Data, userPipeSizeIn);
+                    const clampData216 = getPipeComponent(fig216Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH07" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1O8LwFNpKT_TYvRlR-lh6dFkgK-cf47tJ" alt="Fig 55" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1Rg2wCKrecEffFsfyjx02hopKWAvDTbNA" alt="Fig 299" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1-SA-WpVSQG2U_cdY2dqQqvr_nWBnsKcE" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1qd9aapCCIixT-VF18oBpR-ZIJmqtb0Hs" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1QS-uKIeMfReuAFzFig2HGZ09z25O06TS" alt="Fig 212" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1djpeZkqldsg9IFYr1jdm_GyrVvWQHhho" alt="Fig 216" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 55: Structural Welding Lug</td>
+                            <td class="section-title">Fig. 299: Forged Steel Clevis</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 212: Medium Pipe Clamp</td>
+                            <td class="section-title">Fig. 216: Heavy Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(selectedLug55, specMaps.fig55)}
+                            ${generateSpecTable(selectedClevis299, specMaps.fig299)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateSpecTable(clampData212, specMaps.fig212, generateValidationMessage(clampData212, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                            ${generateSpecTable(clampData216, specMaps.fig216, generateValidationMessage(clampData216, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "8": {
+                    const selectedLug55 = findComponentByLoad(fig55Data, userLoadLbs, loadColumnKey);
+                    const selectedClevis299 = findComponentByLoad(fig299Data, userLoadLbs, loadColumnKey);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH08" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1O8LwFNpKT_TYvRlR-lh6dFkgK-cf47tJ" alt="Fig 55" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1Rg2wCKrecEffFsfyjx02hopKWAvDTbNA" alt="Fig 299" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1-SA-WpVSQG2U_cdY2dqQqvr_nWBnsKcE" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1qd9aapCCIixT-VF18oBpR-ZIJmqtb0Hs" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=14mfs7puFbzTEs_AKtdSCpxNaOCRIALXo" alt="Fig 295" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 55: Structural Welding Lug</td>
+                            <td class="section-title">Fig. 299: Forged Steel Clevis</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 295: Double Bolt Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(selectedLug55, specMaps.fig55)}
+                            ${generateSpecTable(selectedClevis299, specMaps.fig299)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateSpecTable(clampData295, specMaps.fig295, generateValidationMessage(clampData295, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "9":
+                case "10": {
+                     const clamp218Data = (userLoadLbs <= fig218Data.maxLoad) ? fig218Data : null;
+                     const rodTakeOut = clamp218Data && clamp218Data["rodTakeOut,E"] && clamp218Data["rodTakeOut,E"][userPipeSizeIn] ? clamp218Data["rodTakeOut,E"][userPipeSizeIn] : 'N/A';
+                     const selectedExt157 = findGenericComponentByLoad(Object.values(fig157Data), userLoadLbs);
+                     const clevis65 = getPipeComponent(fig65Data, userPipeSizeIn);
+                     
+                     tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH${value}" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1h3S8WDXA2Ym-HrQ-8DC2pV2blElcddGL" alt="Fig 218" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1NdrQ1OmmjZ8ctSvzyMip23IUrWyyypx3" alt="Fig 157" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1lun0D7azRICZ6SNbl199g54JRGg4j6L5" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1FhczlgzBXX0PqgQGgnhsQIbTQNUJAf3g" alt="Fig 65" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 218: Beam Clamp</td>
+                            <td class="section-title">Fig. 157: Extension Piece</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 65: Light Duty Adj. Clevis</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable({...clamp218Data, rodTakeOut: rodTakeOut}, {...specMaps.fig218, "Rod Takeout E": "rodTakeOut"}, generateValidationMessage(clamp218Data, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                            ${generateSpecTable(selectedExt157, specMaps.fig157)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(clevis65, specMaps.fig65, generateValidationMessage(clevis65, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "11": { 
+                    const clamp93 = findGenericComponentByLoad(Object.values(fig93Data), userLoadLbs, 'maxLoadTop');
+                    const hanger260 = getPipeComponent(fig260Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH11" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1dpTqUE1rwdoPEFP_vZjqj3oMRuMMQtXN" alt="Fig 93" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1C18TNhhvMuxf0eJAy_4Wyt5fui9q5ygJ" alt="Fig 260" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1wRJp9U4b7X1rdM2RqhckQk6Tbr_ywzDa" alt="Fig 167" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 93: Side Beam Clamp</td>
+                            <td class="section-title">Fig. 260: Adj. Clevis Hanger</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 167: Insulation Shield</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(clamp93, specMaps.fig93, generateValidationMessage(clamp93, userLoadLbs, 'maxLoadTop', userPipeSizeIn))}
+                            ${generateSpecTable(hanger260, specMaps.fig260, generateValidationMessage(hanger260, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(null, specMaps.fig167, "Selection based on insulation thickness.")}
+                        </tr>`;
+                    break;
+                }
+                 case "12": { 
+                    const selectedBeam292 = findGenericComponentByLoad(fig292Data, userLoadLbs);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH12" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1sQHPWSlvoPL327zWVho8TCC51FbEFoI1" alt="Fig 292" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1z0kkkO3h8LQADYhBd8nhEwdZV19hpxEp" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1xtQYfZgc0vttQxuxOZ0fKDkk_QhVE6bq" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17M_Tah1cxq74QOB6qgyLHSi0JVmGqtrU" alt="Fig 295" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 292: Beam Clamp</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 295: Double Bolt Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(selectedBeam292, specMaps.fig292)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateSpecTable(clampData295, specMaps.fig295, generateValidationMessage(clampData295, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "13": { 
+                    const selectedBeam292 = findGenericComponentByLoad(fig292Data, userLoadLbs);
+                    const hanger260 = getPipeComponent(fig260Data, userPipeSizeIn);
+                     tableRows = `
+                         <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH13" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1sQHPWSlvoPL327zWVho8TCC51FbEFoI1" alt="Fig 292" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1C18TNhhvMuxf0eJAy_4Wyt5fui9q5ygJ" alt="Fig 260" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 292: Beam Clamp</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 260: Adj. Clevis Hanger</td>
+                        </tr>
+                        <tr>
+                           <td></td>
+                           ${generateSpecTable(selectedBeam292, specMaps.fig292)}
+                           ${generateRodMessage(selectedRod146, userTempF)}
+                           ${generateSpecTable(hanger260, specMaps.fig260, generateValidationMessage(hanger260, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                        </tr>`;
+                     break;
+                }
+                case "14": { 
+                    const selectedBeam292 = findGenericComponentByLoad(fig292Data, userLoadLbs);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData212 = getPipeComponent(fig212Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH14" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1sQHPWSlvoPL327zWVho8TCC51FbEFoI1" alt="Fig 292" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1z0kkkO3h8LQADYhBd8nhEwdZV19hpxEp" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1xtQYfZgc0vttQxuxOZ0fKDkk_QhVE6bq" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1QS-uKIeMfReuAFzFig2HGZ09z25O06TS" alt="Fig 212" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 292: Beam Clamp</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 212: Medium Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                           <td></td>
+                           ${generateSpecTable(selectedBeam292, specMaps.fig292)}
+                           ${generateRodMessage(selectedRod146, userTempF)}
+                           ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                           ${generateSpecTable(clampData212, specMaps.fig212, generateValidationMessage(clampData212, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                 case "16": { 
+                    const clamp92 = findGenericComponentByLoad(Object.values(fig92Data), userLoadLbs, 'maxLoadTop');
+                    const ring69 = getPipeComponent(fig69Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH16" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1S-SjHj3T0sL0r8wYq2s-5g-H8rR4fCgM" alt="Fig 92" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1EAKK7hZVAp50V9EpokN_CQveC-gKGQJS" alt="Fig 69" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 92: Top Beam Clamp</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 69: Adj. Swivel Ring</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(clamp92, specMaps.fig92, generateValidationMessage(clamp92, userLoadLbs, 'maxLoadTop', userPipeSizeIn))}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(ring69, specMaps.fig69, generateValidationMessage(ring69, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                 case "17": { 
+                    const plate60 = findComponentByLoad(fig60Data, userLoadLbs, loadColumnKey);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH17" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1k7Hwy7lfuTcq2XwtNHNvWrtbiATVEEGH" alt="Fig 60" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1xtQYfZgc0vttQxuxOZ0fKDkk_QhVE6bq" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17M_Tah1cxq74QOB6qgyLHSi0JVmGqtrU" alt="Fig 295" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 60: Washer Plate</td>
+                            <td class="section-title">Fig. 146: Threaded Rod</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 295: Double Bolt Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(plate60, specMaps.fig60)}
+                            ${generateRodMessage(selectedRod146, userTempF)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateSpecTable(clampData295, specMaps.fig295, generateValidationMessage(clampData295, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "20": { 
+                    const plate60 = findComponentByLoad(fig60Data, userLoadLbs, loadColumnKey);
+                    const hanger260 = getPipeComponent(fig260Data, userPipeSizeIn);
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH20" class="enlargeable"></td>
+                             <td><img src="https://drive.google.com/thumbnail?id=1k7Hwy7lfuTcq2XwtNHNvWrtbiATVEEGH" alt="Fig 60" class="enlargeable"></td>
+                             <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 146" class="enlargeable"></td>
+                             <td><img src="https://drive.google.com/thumbnail?id=1C18TNhhvMuxf0eJAy_4Wyt5fui9q5ygJ" alt="Fig 260" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                           <td class="section-title">Fig. 60: Steel Washer Plate</td>
+                           <td class="section-title">Fig. 146: Threaded Rod</td>
+                           <td class="section-title">Fig. 260: Adj. Clevis Hanger</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                           ${generateSpecTable(plate60, specMaps.fig60)}
+                           ${generateRodMessage(selectedRod146, userTempF)}
+                           ${generateSpecTable(hanger260, specMaps.fig260, generateValidationMessage(hanger260, userLoadLbs, 'maxLoad', userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                case "21": { 
+                    const selectedBeam66 = findComponentByLoad(fig66Data, userLoadLbs, loadColumnKey);
+                    const selectedEyeNut290 = findComponentByLoad(fig290Data, userLoadLbs, loadColumnKey);
+                    const rod140 = findComponentByLoad(fig140Data, userLoadLbs, loadColumnKey);
+                    const clampData295 = getPipeComponent(fig295Data, userPipeSizeIn);
+                    
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${imageMap[value]}" alt="SH21" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1VtdZ1VEH9G8zGV9yWT12xM3xUqt6-HSE" alt="Fig 66" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=1-56bDt-AP835d6N7fww_Ycjo2gHDkdXP" alt="Fig 290" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17BhPJAjKD2g0Nl8Y1wPDZ7ha6zbp3gtQ" alt="Fig 140" class="enlargeable"></td>
+                            <td><img src="https://drive.google.com/thumbnail?id=17M_Tah1cxq74QOB6qgyLHSi0JVmGqtrU" alt="Fig 295" class="enlargeable"></td>
+                        </tr>
+                        <tr>
+                            <td class="section-title">Fig. 66: Welded Beam</td>
+                            <td class="section-title">Fig. 290: Weldless Eye Nut</td>
+                            <td class="section-title">Fig. 140: Threaded Rod</td>
+                            <td class="section-title">Fig. 295: Double Bolt Pipe Clamp</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            ${generateSpecTable(selectedBeam66, specMaps.fig66)}
+                            ${generateSpecTable(selectedEyeNut290, specMaps.fig290)}
+                            ${generateSpecTable(rod140, specMaps.fig140)}
+                            ${generateSpecTable(clampData295, specMaps.fig295, generateValidationMessage(clampData295, userLoadLbs, loadColumnKey, userPipeSizeIn))}
+                        </tr>`;
+                    break;
+                }
+                // **** END OF NEWLY ADDED LOGIC ****
+                
+                case "C211_Opt1":
+                case "C211_Opt2":
+                case "C211_Opt3": {
+                    const selectedStrut = findStrutByLoad(c211LoadDimensionsData, userLoadLbs);
+                    const eTakeOutTempKey = (userTempF <= 650) ? "650F" : "1075F";
+                    const eTakeOutDataForPipe = c211ETakeOutData[eTakeOutTempKey]?.[userPipeSizeIn];
+                    let eTakeOutDimension = 'N/A';
+                    let eTakeOutSizeKey = null;
+
+                    if (selectedStrut) {
+                        if (selectedStrut.size === "A") eTakeOutSizeKey = "A";
+                        else if (selectedStrut.size === "B" || selectedStrut.size === "C") eTakeOutSizeKey = "B&C";
+                        else if (selectedStrut.size === "1" || selectedStrut.size === "2") eTakeOutSizeKey = "1&2";
+                        else eTakeOutSizeKey = selectedStrut.size;
+
+                        if (eTakeOutDataForPipe && eTakeOutSizeKey && eTakeOutDataForPipe[eTakeOutSizeKey]) {
+                            eTakeOutDimension = eTakeOutDataForPipe[eTakeOutSizeKey];
+                        }
+                    }
+
+                    const eTakeOutDisplay = { dimension: eTakeOutDimension };
+                    const mainImg = imageMap["C211_Opt3"];
+                    
+                    const fig640Title = (value === "C211_Opt3") ? '<td class="section-title">Fig. 640: Extension Piece</td>' : '';
+                    const fig640Data = (value === "C211_Opt3") ? generateStrutSpecTable(selectedStrut, specMaps.c211Fig640) : '';
+                    
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${mainImg}" alt="C211 Option 3" class="enlargeable"></td>
+                            <td class="section-title">C-211: Sway Strut</td>
+                            ${fig640Title}
+                            <td class="section-title">E-Take Out Dimensions</td>
+                        </tr>
+                        <tr>
+                            ${generateStrutSpecTable(selectedStrut, specMaps.c211Fig211)}
+                            ${fig640Data}
+                            ${generateStrutSpecTable(eTakeOutDisplay, specMaps.eTakeOut)}
+                        </tr>`;
+                    break;
+                }
+                case "C222_Opt1":
+                case "C222_Opt2":
+                case "C222_Opt3": {
+                    const selectedStrut = findStrutByLoad(c222LoadDimensionsData, userLoadLbs);
+                    const eTakeOutTempKey = "650F"; 
+                    const eTakeOutDataForPipe = c222ETakeOutData[eTakeOutTempKey]?.[userPipeSizeIn];
+                    let eTakeOutDimension = 'N/A';
+                    let eTakeOutSizeKey = null;
+                    let selectedConfig = null;
+
+                    if (selectedStrut) {
+                        if (selectedStrut.assemblySize === "A") eTakeOutSizeKey = "A";
+                        else if (selectedStrut.assemblySize === "B & C") eTakeOutSizeKey = "B&C";
+                        else if (selectedStrut.assemblySize === "1") eTakeOutSizeKey = "1";
+
+                        if (eTakeOutDataForPipe && eTakeOutSizeKey && eTakeOutDataForPipe[eTakeOutSizeKey]) {
+                            eTakeOutDimension = eTakeOutDataForPipe[eTakeOutSizeKey];
+                        }
+
+                        if (selectedStrut.configs && selectedStrut.configs.length > 0) {
+                            if (value.endsWith("Opt1")) selectedConfig = selectedStrut.configs[0];
+                            else if (value.endsWith("Opt2")) selectedConfig = selectedStrut.configs[Math.min(1, selectedStrut.configs.length - 1)];
+                            else if (value.endsWith("Opt3")) selectedConfig = selectedStrut.configs[Math.min(2, selectedStrut.configs.length - 1)];
+                        }
+                    }
+
+                    const eTakeOutDisplay = { dimension: eTakeOutDimension };
+                    const mainImg = imageMap["C222_Opt3"];
+                    
+                    tableRows = `
+                        <tr>
+                            <td rowspan="2"><img src="${mainImg}" alt="C222 Option 3" class="enlargeable"></td>
+                            <td class="section-title">C-222: Sway Strut</td>
+                            <td class="section-title">Configuration: ${selectedConfig?.name || 'N/A'}</td>
+                            <td class="section-title">E-Take Out Dimensions</td>
+                        </tr>
+                        <tr>
+                            ${generateStrutSpecTable(selectedStrut, specMaps.c222Fig222)}
+                            ${generateStrutSpecTable(selectedConfig, specMaps.c222Config)}
+                            ${generateStrutSpecTable(eTakeOutDisplay, specMaps.eTakeOut)}
+                        </tr>`;
+                    break;
+                }
+
+                default: {
+                     tableRows = `<tr><td><p class="invalid-msg">Selection logic for ${value} has not been implemented yet.</p></td></tr>`;
+                }
+            }
+
+            pageContent = `<table>${tableRows}</table>`;
+            w.document.write(pageHeader + pageContent + pageFooter);
+            w.document.close();
+            w.onload = function() {
+                var imgs = w.document.querySelectorAll('img.enlargeable');
+                var modal = w.document.getElementById('img-modal');
+                var modalImg = w.document.getElementById('modal-img');
+                imgs.forEach(function(img) {
+                    img.addEventListener('click', function(e) {
+                        modal.style.display = 'flex';
+                        modalImg.src = img.src;
+                    });
+                });
+                modal.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    modalImg.src = '';
+                });
+            };
+        };
+        </Script>
+        </body>
+        </html>
